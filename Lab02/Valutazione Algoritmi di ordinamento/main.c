@@ -6,14 +6,14 @@
 
 int potenza(int exp,int base);
 void SelectionSort(int vettore[],int lunghezza);
-void InsertionSort(int vettore[],int lunghezza);
+void InsertionSort(int vettore[],int lunghezza,int * iterazioni_totali,int * scambi_totali);
 void ShellSort(int vettore[],int lunghezza);
-long int power(int intero,int potenza);
 
 int main() {
     FILE *fp;
     int n_sequenze;
     int lunghezza_sequenza;
+    int iterazioni_totali,scambi_totali;
 
     fp = fopen(__FILENAME__,"r");
 
@@ -26,27 +26,25 @@ int main() {
                 fscanf(fp,"%d",&vettore[j]);
             }
             /*Inserire le funzioni di sorting*/
-            printf("\nINSERTION SORT");
-            InsertionSort(vettore,lunghezza_sequenza);
             printf("\nSELECTION SORT");
             SelectionSort(vettore,lunghezza_sequenza);
             printf("\nSHELL SORT");
             ShellSort(vettore,lunghezza_sequenza);
+            printf("\nINSERTION SORT");
+            InsertionSort(vettore,lunghezza_sequenza,&iterazioni_totali,&scambi_totali);
+
         }
     }
 
     return 0;
 }
 
-void InsertionSort(int sub_vettore[],int lunghezza){
+void InsertionSort(int vettore[],int lunghezza,int * iterazioni_totali,int * scambi_totali){
     int j=0;
     int temp;
-    int vettore[lunghezza];
     int n_scambi = 0, iter_ext = 0,iter_int=0, iter_tot = 0;
 
-    for (int k = 0; k < lunghezza; k++) {
-        vettore[k] = sub_vettore[k];
-    }
+
 
 
     for (int i = 0; i < lunghezza; i++) {
@@ -64,12 +62,18 @@ void InsertionSort(int sub_vettore[],int lunghezza){
             }
             j--;
         }
-        iter_tot+=j;
+        iter_tot+=iter_int;
         printf("\nIterazioni al ciclo esterno %d : %d",i,iter_int);
     }
 
     printf("\nIterazioni totali: %d"
-           "\nScambi effettuati totali: %d",iter_tot,n_scambi);
+           "\nScambi effettuati totali: %d\n",iter_tot,n_scambi);
+    *iterazioni_totali = iter_tot;
+    *scambi_totali = n_scambi;
+
+    for (int l = 0; l < lunghezza ; l++) {
+        printf("%d ",vettore[l]);
+    }
 }
 
 void SelectionSort(int sub_vettore[],int lunghezza) {
@@ -79,7 +83,7 @@ void SelectionSort(int sub_vettore[],int lunghezza) {
     int minimo;
     int i_sort = 0;
     int j = 0;
-    int n_scambi = 0, iter_tot = 0;
+    int n_scambi = 0, iter_tot = 0,iter_int;
     int indice;
     int ordinato = 0;
     int vettore[lunghezza];
@@ -91,69 +95,77 @@ void SelectionSort(int sub_vettore[],int lunghezza) {
     for (i_sort = 0; i_sort < lunghezza && ordinato == 0; i_sort++) {
         j = i_sort; //incremento l'indice volta per volta
         minimo = INT_MAX;
+        iter_int=0;
         while (j < lunghezza) {
             if (vettore[j] <= minimo) {
-                n_scambi++;
                 minimo = vettore[j];
                 indice = j;
-                vettore[indice] = vettore[i_sort];
-                vettore[i_sort] = minimo;
             }
+            iter_int++;
             j++;
         }
-        iter_tot+=j;
-        printf("\nIterazioni interne al ciclo esterno %d : %d",i_sort,j);
-        j = 0;
+        n_scambi++;
+        vettore[indice] = vettore[i_sort];
+        vettore[i_sort] = minimo;
+        iter_tot+=iter_int;
+        printf("\nIterazioni interne al ciclo esterno %d : %d",i_sort,iter_int);
         ordinato = 1; //suppongo che sia ordinato
+        j=i_sort;
         while (j < lunghezza - 1) {
-            if (vettore[j] > vettore[j + 1]) {
+            if (vettore[j] >= vettore[j + 1]) {
                 ordinato = 0;
             }
             j++;
         }
     }
-    printf("\nNumero iterazioni totali: %d\nNumero scambi totali: %d",iter_tot,n_scambi);
+    printf("\nNumero iterazioni totali: %d\nNumero scambi totali: %d\n",iter_tot,n_scambi);
+    for (int i = 0; i < lunghezza; i++) {
+        printf("%d ",vettore[i]);
+    }
+
 }
 
 void ShellSort(int argvettore[],int lunghezza){
-    int k;
+    int k,iter_tot=0,scambi_tot=0,iter,n_scambi;
     int sub_vettore[lunghezza];
     int succ;
     int vettore[lunghezza];
-
-
+    int max;
+    int limite = (int)(((float)lunghezza/3)+0.5);
     for (k = 0; k < lunghezza; k++) {
         vettore[k] = argvettore[k];
     }
 
+    for (k = 1; (succ= (potenza(k,3)-1)/2) <= limite ; k++) {
+        max = k;
+    }
 
-    for (k=1 ; ((succ=(potenza(k,3)-1)/2)) <= ((lunghezza/3)+0.5) ; k++) {
+    for (k=max ;(succ= (potenza(k,3)-1)/2) <= limite && k>0 ; k--) {
         int j=0;
-        for (int l = 0; l <= lunghezza/3;l++) {
-            j=-1;
-            for (int i = l; i < lunghezza; i+=succ) {
+        for (int l = 0; l < succ; l++) {
+            j = -1;
+            for (int i = l; i < lunghezza; i += succ) {
                 j++;
                 sub_vettore[j] = vettore[i];
             }
-            InsertionSort(sub_vettore,j+1); //ordino il sottovettore
-            j=-1;                            //re inserisco nel vettore di partenza
-            for (int i = l; i < lunghezza; i+=succ) {
+            InsertionSort(sub_vettore, j + 1, &iter, &n_scambi); //ordino il sottovettore
+            iter_tot += iter;
+            scambi_tot += n_scambi;
+            j = -1;                            //re inserisco nel vettore di partenza
+            for (int i = l; i < lunghezza; i += succ) {
                 j++;
                 vettore[i] = sub_vettore[j];
             }
         }
-
     }
+    printf("\nIterazioni totali :%d \nScambi totali: %d",iter_tot,scambi_tot);
 
-    for (int l = 0; l < lunghezza; l++) {
-        printf("%d ",vettore[l]);
-    }
 }
 
 int potenza(int exp,int base) {
-    while (exp>0){
-        base*=base;
-        exp--;
+    if (exp==0 || exp==1)
+        return base;
+    else
+        return potenza(exp-1,base*base);
+
     }
-    return base;
-}
