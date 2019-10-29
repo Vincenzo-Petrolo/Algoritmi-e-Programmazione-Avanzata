@@ -39,10 +39,14 @@ int main() {
 
     /*Modalità di ricerca riga per riga*/
     leggi_regularexp(regexp);
+
     while (fscanf(fp,"%s",parola) != EOF) {
-        pointer=cercaRegexp(parola,regexp);
-        if (pointer != NULL)
-            printf("\n%s",pointer);
+        i=0;
+        while (i<=strlen(parola)) {
+            pointer=cercaRegexp(&parola[i++],regexp);
+            if (pointer != NULL)
+                printf("\n%s", pointer);
+        }
     }
 
 
@@ -76,51 +80,51 @@ char* cercaRegexp(char* src,char* regexp){
 
     char* pointer=NULL;
     int lunghezza_vettore_metacaratteri = strlen(regexp);
-    char pulita[strlen(regexp)];
+    char pulita[strlen(regexp)+1];
+    pulita[strlen(regexp)] = '\0'; //metto il terminatore che poi mi trascinerò durante gli shift
 
     vincoli_al_carattere metacaratteri[strlen(regexp)];
     compila_vincoli(regexp,metacaratteri,&lunghezza_vettore_metacaratteri);
     pulizia_regexp(regexp,lunghezza_vettore_metacaratteri,metacaratteri,pulita);
-    boolean meta_accettabile = TRUE,carat_accettabile=TRUE;
+    boolean meta_accettabile = FALSE,carat_accettabile=FALSE;
     /*Per comparare la presenza della stringa posso spostare la regexp, sulla src per confrontarle, partendo da 0*/
     int limite = strlen(src) -strlen(pulita);
-    int i;
-    for (i = 0; i <= limite; i++) {
+    if (limite >= 0){
         meta_accettabile =TRUE;
         for (int l = 0; l < lunghezza_vettore_metacaratteri && meta_accettabile == TRUE; l++) {
             if (metacaratteri[l].metacarattere == PARENTESI) {
-                for (int j = 0; j < metacaratteri[l].lunghezza_shift-2; j++) { //se la lettera di src che sto considerando in posizione i è uguale al contenuto tra parentesi, allora meta_accettabile TRUE
-                    if (metacaratteri[l].contenuto_parentesi[j+1] != src[i+metacaratteri[l].posizione]) {//controllo che nella posizione della src ci sia il carattere che cerco
+                for (int j = 0; j <= metacaratteri[l].lunghezza_shift-2; j++) { //se la lettera di src che sto considerando in posizione i è uguale al contenuto tra parentesi, allora meta_accettabile TRUE
+                    if (metacaratteri[l].contenuto_parentesi[j+1] != src[metacaratteri[l].posizione]) {//controllo che nella posizione della src ci sia il carattere che cerco
                         meta_accettabile = FALSE;
                     }
                 }
             }
             else if (metacaratteri[l].metacarattere == NEGAZIONE_PARENTESI) {
                 for (int j = 0; j < metacaratteri[l].lunghezza_shift-3; j++) { //se la lettera di src che sto considerando in posizione i è uguale al contenuto tra parentesi, allora meta_accettabile TRUE
-                    if (metacaratteri[l].contenuto_parentesi[j+2] == src[i+metacaratteri[l].posizione]) { //controllo che nella posizione della src ci sia il carattere che cerco
+                    if (metacaratteri[l].contenuto_parentesi[j+2] == src[metacaratteri[l].posizione]) { //controllo che nella posizione della src ci sia il carattere che cerco
                         meta_accettabile = FALSE;
                     }
                 }
             }
             else if (metacaratteri[l].metacarattere == MINUSCOLO){
-                if (!islower(src[i+metacaratteri[l].posizione]))
+                if (!islower(src[metacaratteri[l].posizione]))
                     meta_accettabile=FALSE;
             }
-            else if (metacaratteri[l].metacarattere == MINUSCOLO){
-                if (!isupper(src[i+metacaratteri[l].posizione]))
+            else if (metacaratteri[l].metacarattere == MAIUSCOLO){
+                if (!isupper(src[metacaratteri[l].posizione]))
                     meta_accettabile=FALSE;
             }
         }
         carat_accettabile = TRUE;
         for (int k = 0; k < strlen(pulita) && carat_accettabile == TRUE; k++) {
             if (pulita[k] != '\n')
-                if (src[i+k] != pulita[k])
+                if (src[k] != pulita[k])
                     carat_accettabile = FALSE;
         }
     }
 
     if (meta_accettabile && carat_accettabile){ //se i caratteri combaciano, e i metacaratteri rispettano i vincoli allora è una valida regexp
-        pointer = src+i-1; //distanza è la distanza dall'inizio
+        pointer = src; //distanza è la distanza dall'inizio
     }
 
     return pointer;
@@ -133,13 +137,36 @@ void leggi_regularexp(char regexp[__MAX_DIM__]){
 
 void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,int *lunghezza_vettore_caratteri){
     /**Casi di ricerca*/
-    int num_casi = MAIUSCOLO+1; //Numero totale dei casi che posso trovare
     char *ptr;
     ptr = regexp;
     int j;
 
+    /**Cerco se nella stringa ci sono '\a'*/
+    j = 0;
+    while ((ptr=strstr(ptr,"\\a")) != NULL) {
+        caratteri[j].metacarattere = MINUSCOLO;
+        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
+
+        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
+        caratteri[j].lunghezza_shift = 1;
+        j++;
+        ptr+=2;
+    }
+    ptr = regexp;
+
+    /**Cerco se nella stringa ci sono '\A'*/
+
+    while ((ptr=strstr(ptr,"\\A")) != NULL) {
+        caratteri[j].metacarattere = MAIUSCOLO;
+        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
+        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
+        caratteri[j].lunghezza_shift = 1;
+        j++;
+        ptr+=2;
+    }
+    ptr = regexp;
+
     /**Cerco se nella stringa ci sono '.'*/
-    j=0;
     while ((ptr=strstr(ptr,".")) != NULL) {
         caratteri[j].metacarattere = PUNTO;
         caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
@@ -168,34 +195,11 @@ void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,in
         caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione,non è corretta, in quanto ottengo la posi
         strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
         ptr+=i; //riparto dalla fine delle parentesi
-        caratteri[j].lunghezza_shift = 1+i;
+        caratteri[j].lunghezza_shift = i;
         j++;
 
     }
-    ptr = regexp;
 
-    /**Cerco se nella stringa ci sono '\a'*/
-
-    while ((ptr=strstr(ptr,"\\a")) != NULL) {
-        caratteri[j].metacarattere = MINUSCOLO;
-        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
-        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
-        caratteri[j].lunghezza_shift = 2;
-        j++;
-        ptr++;
-    }
-    ptr = regexp;
-
-    /**Cerco se nella stringa ci sono '\A'*/
-
-    while ((ptr=strstr(ptr,"\\A")) != NULL) {
-        caratteri[j].metacarattere = MAIUSCOLO;
-        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
-        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
-        caratteri[j].lunghezza_shift = 2;
-        j++;
-        ptr++;
-    }
     //Alla fine avrò compilato un vettore lungo al più la lunghezza della regexp
     *lunghezza_vettore_caratteri=j;
 }
@@ -219,13 +223,15 @@ void pulizia_regexp(char regexp[__MAX_DIM__],int lunghezza_vettore_caratteri,vin
     int i;
 
     for (k = 0; k < lunghezza_vettore_caratteri; k++) {
-        for (i = metacaratteri[k].posizione+1; i <= strlen(regexp)-metacaratteri[k].lunghezza_shift; i++) {
-            pulita[i] = pulita[i+metacaratteri[k].lunghezza_shift-1];
+            for (i = metacaratteri[k].posizione+1; i <=strlen(regexp)-metacaratteri[k].lunghezza_shift; i++) {
+            pulita[i] = pulita[i+metacaratteri[k].lunghezza_shift];
+            }
+        for (int j = k+1; j < lunghezza_vettore_caratteri; j++) {
+            if (metacaratteri[j].posizione >= metacaratteri[k].lunghezza_shift) //aggiorno la pos del metacarattere se non è 0, che è stato spostato
+                metacaratteri[j].posizione -= metacaratteri[k].lunghezza_shift;
+
         }
     }
-    if (lunghezza_vettore_caratteri >0)
-    {
-        pulita[i] = '\0';
-    }
+
 
 }
