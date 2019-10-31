@@ -28,8 +28,6 @@ typedef struct {
     int giorno;
     int mese;
     int anno;
-    int ora;
-    int minuti;
 }data;
 
 typedef struct {
@@ -47,7 +45,7 @@ typedef struct {
 int leggiFile(dati tabella[]);
 int leggiComando(stampa tipo_stampa);
 void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,int comando);
-void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento);
+void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento);
 void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza);
 void string2low(char stringa[__MAX_S__]);
 stampa leggi_tipo_stampa();
@@ -77,7 +75,7 @@ stampa leggi_tipo_stampa() {
 
     stampa decisione=VIDEO;
     char stringa[__MAX_S__];
-    printf("Vuoi stampare su file anzichè video?[S/n]");
+    printf("\nVuoi stampare su file anzichè video?[S/n]");
     scanf("%s",stringa);
     string2low(stringa);
     if (strstr(stringa,"s") != NULL) {
@@ -142,21 +140,21 @@ void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,in
 
     switch (comando) {
         case r_date: {         /**0 Ordinamento per date**/
-            ordinamento(&tabella,vettori,lunghezza_tabella,comando);
+            ordinamento(tabella,vettori,lunghezza_tabella,comando);
             break;
         }
         case r_tratte:{            /**1 Ordinamento per codice tratta*/
-
+            ordinamento(tabella,vettori,lunghezza_tabella,comando);
             break;
         }
 
         case r_partenza:{            /**2 Ordinamento per stazione di partenza*/
-
+            ordinamento(tabella,vettori,lunghezza_tabella,comando);
             break;
         }
 
         case r_capolinea:{            /**3 Ordinamento per stazione di arrivo*/
-
+            ordinamento(tabella,vettori,lunghezza_tabella,comando);
             break;
         }
         case r_ricerca: {
@@ -227,14 +225,14 @@ void string2low(char stringa[__MAX_S__]){
     }
 }
 
-void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento) {
+void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento) {
 
     /*Applico il Selection Sort che è stabile e in loco*/
     switch (richiesta_campo_ordinamento) {
         case r_date: {         /**0 Ordinamento per date**/
              if (vettori->date_ordinate != TRUE){
                     for (int k = 0; k < lunghezza; k++) {
-                        (*vettori).ord_date[k] = tabella[k];
+                        vettori->ord_date[k] = &tabella[k];
                     } //sposto i puntatori nel vettore da ordinare
 
                     //siccome lo sto ordinando setto la variabile che si riferisce al fatto se ha ordinato o meno gia il vettore
@@ -242,23 +240,20 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
 
                     /*Selection sort ha inizio*/
                     int i, j, l = 0, r = lunghezza - 1;
-                    char minimo[] = "99/99/9999";
-                    char minimo_ora[] = "99:99";
                     int posizione;
+                    int minimo;
                     dati *tmp;
                     for (i = l; i < r; i++) {
                         //associo il minimo all'elemento i-esimo della struttura
-                        strcpy(minimo, tabella[i]->data_part);
-                        posizione = -1;
+                        minimo = i;
                         for (j = i + 1; j <= r; j++)
-                            if (compara_date(tabella[j]->data_part, minimo,tabella[i]->orario_partenza,minimo_ora) == -1) //se è minore del minimo
-                                strcpy(minimo, tabella[j]->data_part);
-                        posizione = j;
+                            if (compara_date((vettori->ord_date[j])->data_part,(vettori->ord_date[minimo])->data_part,(vettori->ord_date[j])->orario_partenza,(vettori->ord_date[minimo])->data_part) == -1) //se è minore del minimo
+                            {minimo = j;}
                         //ordino il vettore di puntatori anzichè quello effettivo
-                        if (posizione != -1) {
-                            tmp = (*vettori).ord_date[i];
-                            (*vettori).ord_date[i] = tabella[posizione];
-                            (*vettori).ord_date[posizione] = tmp;
+                        if (minimo != i) {
+                            tmp = vettori->ord_date[i];
+                            vettori->ord_date[i] = vettori->ord_date[minimo];
+                            vettori->ord_date[minimo] = tmp;
                         }
                 }
             }
@@ -267,7 +262,7 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
         case r_tratte: {            /**1 Ordinamento per codice tratta*/
             if (vettori->codice_ordinato != TRUE) {
                 for (int k = 0; k < lunghezza ; k++) {
-                    vettori->ord_codice[k] = tabella[k];
+                    vettori->ord_codice[k] = &tabella[k];
                 } //sposto i puntatori nel vettore da ordinare
                 //siccome lo sto ordinando setto la variabile che si riferisce al fatto se ha ordinato o meno gia il vettore
                 vettori->codice_ordinato = TRUE;
@@ -275,9 +270,9 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
                 int i, j, l=0, r=lunghezza-1;
                 dati *x;
                 for(i = l+1; i <= r; i++) {
-                    x = tabella[i];
+                    x = &tabella[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->codice_tratta,tabella[j]->codice_tratta) < 0) {
+                    while (j >= l && strcmp(x->codice_tratta,(&tabella[j])->codice_tratta) < 0) {
                         vettori->ord_codice[j+1] = vettori->ord_codice[j];
                         j--;
                     }
@@ -291,7 +286,7 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
             if (vettori->codice_ordinato != TRUE) {
 
                 for (int k = 0; k < lunghezza; k++) {
-                    vettori->ord_partenza[k] = tabella[k];
+                    vettori->ord_partenza[k] = &tabella[k];
                 } //sposto i puntatori nel vettore da ordinare
                 //siccome lo sto ordinando setto la variabile che si riferisce al fatto se ha ordinato o meno gia il vettore
                 vettori->partenza_ordinato = TRUE;
@@ -299,9 +294,9 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
                 int i, j, l = 0, r = lunghezza - 1;
                 dati *x;
                 for (i = l + 1; i <= r; i++) {
-                    x = tabella[i];
+                    x = &tabella[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->partenza, tabella[j]->partenza) < 0) {
+                    while (j >= l && strcmp(x->partenza, (&tabella[j])->partenza) < 0) {
                         vettori->ord_partenza[j + 1] = vettori->ord_partenza[j];
                         j--;
                     }
@@ -314,7 +309,7 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
         case r_capolinea: {            /**3 Ordinamento per stazione di arrivo*/
             if (vettori->arrivo_ordinato != TRUE ) {
                 for (int k = 0; k < lunghezza; k++) {
-                    vettori->ord_arrivo[k] = tabella[k];
+                    vettori->ord_arrivo[k] = &tabella[k];
                 } //sposto i puntatori nel vettore da ordinare
                 //siccome lo sto ordinando setto la variabile che si riferisce al fatto se ha ordinato o meno gia il vettore
                 vettori->arrivo_ordinato = TRUE;
@@ -322,9 +317,9 @@ void ordinamento(dati *tabella[],set_vettori *vettori,int lunghezza,comando rich
                 int i, j, l = 0, r = lunghezza - 1;
                 dati *x;
                 for (i = l + 1; i <= r; i++) {
-                    x = tabella[i];
+                    x = &tabella[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->destinazione, tabella[j]->destinazione) < 0) {
+                    while (j >= l && strcmp(x->destinazione, (&tabella[j])->destinazione) < 0) {
                         vettori->ord_arrivo[j + 1] = vettori->ord_arrivo[j];
                         j--;
                     }
@@ -351,8 +346,9 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
     switch (comando) {
         case r_date:
         {
+            fprintf(fp,"ORDINAMENTO DATE");
             for (int i = 0; i < lunghezza; i++) {
-                printf("\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                fprintf(fp,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
                        "Ora arrivo: %s ", (*(vettori.ord_date[i])).codice_tratta, (*(vettori.ord_date[i])).partenza,
                        (*(vettori.ord_date[i])).destinazione,
                        (*(vettori.ord_date[i])).data_part,(*(vettori.ord_date[i])).orario_partenza, (*(vettori.ord_date[i])).orario_arrivo);
@@ -361,8 +357,9 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
         }
         case r_tratte:
         {
+            fprintf(fp,"\nORDINAMENTO CODICI");
             for (int i = 0; i < lunghezza; i++) {
-                printf("\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                fprintf(fp,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
                        "Ora arrivo: %s ", (*(vettori.ord_codice[i])).codice_tratta, (*(vettori.ord_codice[i])).partenza,
                        (*(vettori.ord_codice[i])).destinazione,
                        (*(vettori.ord_codice[i])).data_part,(*(vettori.ord_codice[i])).orario_partenza, (*(vettori.ord_codice[i])).orario_arrivo);
@@ -372,8 +369,9 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
         }
         case r_partenza:
         {
+            fprintf(fp,"\nORDINAMENTO PER STAZIONI DI PARTENZA");
             for (int i = 0; i < lunghezza; i++) {
-                printf("\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                fprintf(fp,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
                        "Ora arrivo: %s ", (*(vettori.ord_partenza[i])).codice_tratta, (*(vettori.ord_partenza[i])).partenza,
                        (*(vettori.ord_partenza[i])).destinazione,
                        (*(vettori.ord_partenza[i])).data_part,(*(vettori.ord_partenza[i])).orario_partenza, (*(vettori.ord_partenza[i])).orario_arrivo);
@@ -382,8 +380,9 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
         }
         case r_capolinea:
         {
+            fprintf(fp,"ORDINAMENTO PER STAZIONI DI ARRIVO");
             for (int i = 0; i < lunghezza; i++) {
-                printf("\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                fprintf(fp,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
                        "Ora arrivo: %s ", (*(vettori.ord_arrivo[i])).codice_tratta, (*(vettori.ord_arrivo[i])).partenza,
                        (*(vettori.ord_arrivo[i])).destinazione,
                        (*(vettori.ord_arrivo[i])).data_part,(*(vettori.ord_arrivo[i])).orario_partenza, (*(vettori.ord_arrivo[i])).orario_arrivo);
@@ -394,6 +393,7 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
             break;
 
     }
-
+    if (fp != stdout)
+        fclose(fp);
 }
 
