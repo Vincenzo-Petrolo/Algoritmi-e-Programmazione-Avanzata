@@ -49,6 +49,9 @@ void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richi
 void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza);
 void string2low(char stringa[__MAX_S__]);
 stampa leggi_tipo_stampa();
+void ricerca_dicotomica(set_vettori vettori,int lunghezza,char chiave[__MAX_S__],int l,int r);
+void ricerca_lineare(set_vettori vettori,int lunghezza);
+
 int main() {
     int comando,lunghezza_effettiva,ultimo_ordinamento;
     dati tabella[__MAX_DATI__];
@@ -158,6 +161,16 @@ void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,in
             break;
         }
         case r_ricerca: {
+            if (vettori->partenza_ordinato == TRUE) {
+                char chiave[__MAX_S__];
+                scanf("%s",chiave);
+                ricerca_dicotomica(*vettori, lunghezza_tabella,chiave, 0, lunghezza_tabella);
+            }
+            else{
+                for (int k = 0; k < lunghezza_tabella; k++) {
+                    vettori->ord_partenza[k] = &tabella[k];
+                } //sposto i puntatori nel vettore da ordinare
+                ricerca_lineare(*vettori,lunghezza_tabella);}
 
             break;
         }
@@ -270,9 +283,9 @@ void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richi
                 int i, j, l=0, r=lunghezza-1;
                 dati *x;
                 for(i = l+1; i <= r; i++) {
-                    x = &tabella[i];
+                    x = vettori->ord_codice[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->codice_tratta,(&tabella[j])->codice_tratta) < 0) {
+                    while (j >= l && strcmp(x->codice_tratta,(vettori->ord_codice[j])->codice_tratta) < 0) {
                         vettori->ord_codice[j+1] = vettori->ord_codice[j];
                         j--;
                     }
@@ -294,9 +307,9 @@ void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richi
                 int i, j, l = 0, r = lunghezza - 1;
                 dati *x;
                 for (i = l + 1; i <= r; i++) {
-                    x = &tabella[i];
+                    x = vettori->ord_partenza[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->partenza, (&tabella[j])->partenza) < 0) {
+                    while (j >= l && strcmp(x->partenza, (vettori->ord_partenza[j])->partenza) < 0) {
                         vettori->ord_partenza[j + 1] = vettori->ord_partenza[j];
                         j--;
                     }
@@ -317,9 +330,9 @@ void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richi
                 int i, j, l = 0, r = lunghezza - 1;
                 dati *x;
                 for (i = l + 1; i <= r; i++) {
-                    x = &tabella[i];
+                    x = vettori->ord_arrivo[i];
                     j = i - 1;
-                    while (j >= l && strcmp(x->destinazione, (&tabella[j])->destinazione) < 0) {
+                    while (j >= l && strcmp(x->destinazione, (vettori->ord_arrivo[j])->destinazione) < 0) {
                         vettori->ord_arrivo[j + 1] = vettori->ord_arrivo[j];
                         j--;
                     }
@@ -397,3 +410,56 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
         fclose(fp);
 }
 
+void ricerca_lineare(set_vettori vettori,int lunghezza) {
+    char chiave[__MAX_S__];
+    scanf("%s",chiave);
+
+    printf("\nRISULTATI RICERCA: ");
+    for (int i = 0; i < lunghezza; i++) {
+        if (strncmp(vettori.ord_partenza[i]->partenza,chiave,2) == 0)
+            fprintf(stdout,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                       "Ora arrivo: %s ", (*(vettori.ord_partenza[i])).codice_tratta, (*(vettori.ord_partenza[i])).partenza,
+                    (*(vettori.ord_partenza[i])).destinazione,
+                    (*(vettori.ord_partenza[i])).data_part,(*(vettori.ord_partenza[i])).orario_partenza, (*(vettori.ord_partenza[i])).orario_arrivo);
+    }
+}
+
+void ricerca_dicotomica(set_vettori vettori,int lunghezza,char chiave[__MAX_S__],int l,int r) {
+    int m = (r-l)/2;
+    int risultato = strncmp(chiave,vettori.ord_partenza[m]->partenza,strlen(chiave));
+
+    if (m < 0)
+        return;
+    if ( risultato > 0)
+        return ricerca_dicotomica(vettori,lunghezza,chiave,m+1,r);
+    else if (risultato < 0)
+        return ricerca_dicotomica(vettori,lunghezza,chiave,l,m-1);
+    else if (risultato == 0) {
+        printf("\nRISULTATI RICERCA: ");
+        fprintf(stdout, "\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                        "Ora arrivo: %s ", (*(vettori.ord_partenza[m])).codice_tratta,
+                (*(vettori.ord_partenza[m])).partenza,
+                (*(vettori.ord_partenza[m])).destinazione,
+                (*(vettori.ord_partenza[m])).data_part, (*(vettori.ord_partenza[m])).orario_partenza,
+                (*(vettori.ord_partenza[m])).orario_arrivo);
+        int tmp = m;
+        while (strncmp(chiave, vettori.ord_partenza[++m]->partenza, strlen(chiave)) == 0)
+        {    fprintf(stdout, "\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                            "Ora arrivo: %s ", (*(vettori.ord_partenza[m])).codice_tratta,
+                    (*(vettori.ord_partenza[m])).partenza,
+                    (*(vettori.ord_partenza[m])).destinazione,
+                    (*(vettori.ord_partenza[m])).data_part, (*(vettori.ord_partenza[m])).orario_partenza,
+                    (*(vettori.ord_partenza[m])).orario_arrivo);
+        }
+        m = tmp;
+        while (strncmp(chiave, vettori.ord_partenza[--m]->partenza, strlen(chiave)) == 0)
+        {    fprintf(stdout, "\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
+                             "Ora arrivo: %s ", (*(vettori.ord_partenza[m])).codice_tratta,
+                     (*(vettori.ord_partenza[m])).partenza,
+                     (*(vettori.ord_partenza[m])).destinazione,
+                     (*(vettori.ord_partenza[m])).data_part, (*(vettori.ord_partenza[m])).orario_partenza,
+                     (*(vettori.ord_partenza[m])).orario_arrivo);
+        }
+        return;
+    }
+}
