@@ -171,7 +171,7 @@ void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,in
         caratteri[j].metacarattere = PUNTO;
         caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
         strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
-        caratteri[j].lunghezza_shift = 1;
+        caratteri[j].lunghezza_shift = 0;
         j++;
         ptr++;
 
@@ -223,9 +223,9 @@ void pulizia_regexp(char regexp[__MAX_DIM__],int lunghezza_vettore_caratteri,vin
     int i;
 
     for (k = 0; k < lunghezza_vettore_caratteri; k++) {
-            for (i = metacaratteri[k].posizione+1; i <=strlen(regexp)-metacaratteri[k].lunghezza_shift; i++) {
+        for (i = metacaratteri[k].posizione+1; i <=strlen(regexp)-metacaratteri[k].lunghezza_shift; i++) {
             pulita[i] = pulita[i+metacaratteri[k].lunghezza_shift];
-            }
+        }
         for (int j = k+1; j < lunghezza_vettore_caratteri; j++) {
             if (metacaratteri[j].posizione >= metacaratteri[k].lunghezza_shift) //aggiorno la pos del metacarattere se non è 0, che è stato spostato
                 metacaratteri[j].posizione -= metacaratteri[k].lunghezza_shift;
