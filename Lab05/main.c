@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define __NOMEFILE__ "corse.txt"
+#define __MAX_NOME_FILE__ 30 //potrei voler leggere un file di log che scritto come log_gg/mm/aaa.txt
 #define __LOGFILE__ "log.txt"
-#define __N_COMANDI__ 7
+#define __N_COMANDI__ 8
 #define  __MAX_S__ 31
 #define  __N_ORDINAMENTI__ 4
 
-typedef enum{r_date,r_tratte,r_partenza,r_capolinea,r_ricerca,r_stampa,r_fine}comando;
+typedef enum{r_date,r_tratte,r_partenza,r_capolinea,r_ricerca,r_stampa,r_nomefile,r_fine}comando;
 
 typedef struct {
     char codice_tratta[__MAX_S__];
@@ -20,16 +20,13 @@ typedef struct {
     char orario_arrivo[__MAX_S__];
     int ritardo;
 }dati;
-
 typedef enum{VIDEO,FILE_TESTO} stampa;
 typedef enum{FALSE,TRUE} boolean;
-
 typedef struct {
     int giorno;
     int mese;
     int anno;
 }data;
-
 typedef struct {
     dati* *v_ordinamenti[__N_ORDINAMENTI__];//matrice di puntatori degli ordinamenti, 0 date,1 codice,2 partenza,3 arrivo
     boolean date_ordinate;
@@ -41,7 +38,7 @@ typedef struct {
 
 boolean Heap_insufficiente = FALSE;
 
-int leggiFile(dati **tabella,set_vettori *vettori, int * n);
+int leggiFile(dati **tabella,set_vettori *vettori, int * n,char *nome_file);
 int leggiComando(stampa tipo_stampa);
 void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,int comando);
 void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento);
@@ -52,33 +49,52 @@ void ricerca_dicotomica(set_vettori vettori,int lunghezza,char chiave[__MAX_S__]
 void ricerca_lineare(set_vettori vettori,int lunghezza);
 void ricerca_lineare_noHeap(set_vettori vettori,int lunghezza);
 void ricerca_dicotomica_noHeap(set_vettori vettori,int lunghezza,char chiave[__MAX_S__],int l,int r);
+void leggi_nome_file(char *nomefile);
 
 int main() {
-    int comando,lunghezza_effettiva,ultimo_ordinamento;
+    int comando,lunghezza_effettiva,n;
     dati *tabella = NULL;
-    char selezione_stampa[__MAX_S__];
+    char nomefile[__MAX_NOME_FILE__];
     stampa tipo_stampa;
-    int n;
     set_vettori vettori;
+
+        //Inizializzo i vettori
     vettori.partenza_ordinato = FALSE;
     vettori.date_ordinate = FALSE;
     vettori.codice_ordinato  = FALSE;
     vettori.arrivo_ordinato = FALSE;
     vettori.caso_heap_insuff = -1;
 
-    lunghezza_effettiva=leggiFile(&tabella,&vettori,&n);
-    if ((Heap_insufficiente == TRUE && n >0) || Heap_insufficiente == FALSE) { //l'Heap non si è finito per forza
-        //basta che sia falso, e allora ciò implica che sono riuscito ad allocare tutto
+    leggi_nome_file(nomefile);
 
-        tipo_stampa = leggi_tipo_stampa();
+    lunghezza_effettiva=leggiFile(&tabella,&vettori,&n,nomefile);
 
-        while ((comando = leggiComando(tipo_stampa)) != r_fine) {
+    tipo_stampa = leggi_tipo_stampa();
+    while ((comando = leggiComando(tipo_stampa)) != r_fine) {
+        if (comando == r_nomefile) {
+            free(tabella);
+            for (int i = 0; i < __N_ORDINAMENTI__; i++) {
+                free(vettori.v_ordinamenti[i]);
+            }
+            //free_all(&tabella,&vettori);
+            leggi_nome_file(nomefile);
+            lunghezza_effettiva = leggiFile(&tabella, &vettori, &n, nomefile);
+            vettori.partenza_ordinato = FALSE;
+            vettori.date_ordinate = FALSE;
+            vettori.codice_ordinato = FALSE;
+            vettori.arrivo_ordinato = FALSE;
+            vettori.caso_heap_insuff = -1;
+        }
+        if ((Heap_insufficiente == TRUE && n > 0) || Heap_insufficiente == FALSE) {
             esegui_comandi(tabella, lunghezza_effettiva, &vettori, comando);
             stampa_log(tipo_stampa, comando, vettori, lunghezza_effettiva);
             tipo_stampa = leggi_tipo_stampa();
+        } else {
+            exit(EXIT_FAILURE);
         }
-
     }
+
+
     return 0;
 }
 
@@ -100,7 +116,7 @@ stampa leggi_tipo_stampa() {
 
 int leggiComando(stampa tipo_stampa){
     char comandi[][50] = {"data","codice","partenza",
-                          "arrivo","ricerca","Stampa attuale: ","fine"};
+                          "arrivo","ricerca","Stampa attuale: ","nome_file","fine"};
     char comando_utente[20];
     int result = -1;
 
@@ -124,15 +140,15 @@ int leggiComando(stampa tipo_stampa){
     return result;
 }
 
-int leggiFile(dati **tabella,set_vettori *vettori, int * n) { //rendere dinamica
+int leggiFile(dati **tabella,set_vettori *vettori, int * n,char *nome_file){ //rendere dinamica
     FILE* fp;
     int righe = 0;
     dati tabella_supporto;
     dati *tmp;
-    dati *temp1;
+    dati **temp1;
     int i;
 
-    fp = fopen(__NOMEFILE__,"r");
+    fp = fopen(nome_file,"r");
     if (fp == NULL) {
         exit(EXIT_FAILURE);
     }
@@ -156,9 +172,9 @@ int leggiFile(dati **tabella,set_vettori *vettori, int * n) { //rendere dinamica
     for (i = 0; i < __N_ORDINAMENTI__ && Heap_insufficiente == FALSE; i++) { //dopo aver scandito il file, creo nell'HEAP i vettori di ordinamento
         //se l'operazione fallisce allora verifico di averne almeno creato 1, e laovoro solo su quello
         //lo comunico alle altre funzioni tramite una variabile globale
-        if ((temp1 = (dati *) malloc(righe * sizeof(dati *))) != NULL){ //verifico che non sia null
+        if ((temp1 = (dati **) malloc(righe * sizeof(dati *))) != NULL){ //verifico che non sia null
 
-            vettori->v_ordinamenti[i] = temp1;  // dal puntatore alla struct
+            (vettori->v_ordinamenti[i]) = temp1;  // dal puntatore alla struct
 
         //arrivo al campo della struct che è un puntatore a un vettore di puntatori
         //dereferenzio all'i-esimo elemento e in quell'i-esimo salvo il puntatore
@@ -214,19 +230,21 @@ void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,in
                 if (vettori->caso_heap_insuff == r_partenza) {
                     char chiave[__MAX_S__];
                     scanf("%s", chiave);
-                    ricerca_dicotomica(*vettori, lunghezza_tabella, chiave, 0, lunghezza_tabella);
+                    ricerca_dicotomica_noHeap(*vettori, lunghezza_tabella, chiave, 0, lunghezza_tabella);
                 } else {
                     for (int k = 0; k < lunghezza_tabella; k++) {
                         vettori->v_ordinamenti[0][k] = &tabella[k];
                     } //sposto i puntatori nel vettore da ordinare
-                    ricerca_lineare(*vettori, lunghezza_tabella);
+                    ricerca_lineare_noHeap(*vettori, lunghezza_tabella);
                 }
             }
                 break;
-
         }
+        case r_nomefile:
+            break;
         default:
             printf("\nComando errato!");
+            break;
     }
 }
 
@@ -288,7 +306,7 @@ void string2low(char stringa[__MAX_S__]){
     }
 }
 
-void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento) {
+void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento){
 
     if (Heap_insufficiente == FALSE) {
         switch (richiesta_campo_ordinamento) {
@@ -351,7 +369,7 @@ void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richi
             }
 
             case r_partenza: {            /**2 Ordinamento per stazione di partenza*/
-                if (vettori->codice_ordinato != TRUE) {
+                if (vettori->partenza_ordinato != TRUE) {
 
                     for (int k = 0; k < lunghezza; k++) {
                         vettori->v_ordinamenti[r_partenza][k] = &tabella[k];
@@ -725,4 +743,10 @@ void ricerca_dicotomica_noHeap(set_vettori vettori,int lunghezza,char chiave[__M
         }
         return;
     }
+}
+
+void leggi_nome_file(char *nomefile) {
+
+    printf("\nInserisci il nome del file: ");
+    scanf("%s",nomefile);
 }
