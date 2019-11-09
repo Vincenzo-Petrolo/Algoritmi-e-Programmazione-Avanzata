@@ -20,6 +20,7 @@ int main() {
 
     leggi_matrice(fp,nr,nc,&mp);
     separa(mp,nr,nc,&v_nero,&v_bianco);
+
     return 0;
 }
 
@@ -43,15 +44,15 @@ void leggi_matrice(FILE *fp,int nr,int nc,int ***mp) {
 }
 
 void separa(int **mat, int nr, int nc,int **v_nero,int **v_bianco) {
-    quadretto colore =BIANCO;
-    int count_nero = 0,count_bianco = 0;
+    quadretto colore = BIANCO;
+    int count_nero = 0, count_bianco = 0;
     int n_nere,n_bianche;
 
     if ((nc*nr)%2 == 0) { //AREA PARI allora il numero di caselle bianche è A/2
         n_bianche = (int)(((float)(nc*nr))/2.0 - 0.5);
         n_nere = (int)(((float)(nc*nr))/2.0 - 0.5);
     }
-    else { //AREAP DISPARI allora il numero i caselle bianche è A/2 +1
+    else { //AREA DISPARI allora il numero i caselle bianche è A/2 +1
         n_bianche = (int)(((float)(nc*nr))/2.0 + 0.5);
         n_nere = (int)(((float)(nc*nr))/2.0 - 0.5);
     }
@@ -63,18 +64,17 @@ void separa(int **mat, int nr, int nc,int **v_nero,int **v_bianco) {
     for (int i = 0; i < nr; i++) {
         for (int j = 0; j < nc; j++) {
             if (colore == BIANCO) {
-                *(*v_bianco+count_bianco) = mat[i][j];
-                colore =NERO;
+                (*v_bianco)[count_bianco] = mat[i][j];
+                colore = NERO;
                 count_bianco++;
             }
             else {
-                *(*v_nero+count_nero) = mat[i][j];
-                colore=BIANCO;
-                v_nero++;
+                (*v_nero)[count_nero] = mat[i][j];
+                colore = BIANCO;
+                count_nero++;
             }
         }
     }
-
 }
 
 
