@@ -38,12 +38,13 @@ typedef struct {
 
 boolean Heap_insufficiente = FALSE;
 
-int leggiFile(dati **tabella,set_vettori *vettori, int * n,char *nome_file);
+int leggiFile(dati *tabella,set_vettori *vettori, int * n,char *nome_file);
 int leggiComando(stampa tipo_stampa);
 void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,int comando);
 void ordinamento(dati tabella[],set_vettori *vettori,int lunghezza,comando richiesta_campo_ordinamento);
 void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza);
 void string2low(char stringa[__MAX_S__]);
+void string2upper(char stringa[__MAX_S__]);
 stampa leggi_tipo_stampa();
 void ricerca_dicotomica(set_vettori vettori,int lunghezza,char chiave[__MAX_S__],int l,int r);
 void ricerca_lineare(set_vettori vettori,int lunghezza);
@@ -53,7 +54,7 @@ void leggi_nome_file(char *nomefile);
 
 int main() {
     int comando,lunghezza_effettiva,n;
-    dati *tabella = NULL;
+    dati *tabella;
     char nomefile[__MAX_NOME_FILE__];
     stampa tipo_stampa;
     set_vettori vettori;
@@ -67,18 +68,20 @@ int main() {
 
     leggi_nome_file(nomefile);
 
-    lunghezza_effettiva=leggiFile(&tabella,&vettori,&n,nomefile);
+    lunghezza_effettiva=leggiFile(tabella,&vettori,&n,nomefile);
 
     tipo_stampa = leggi_tipo_stampa();
     while ((comando = leggiComando(tipo_stampa)) != r_fine) {
+
         if (comando == r_nomefile) {
+
             free(tabella);
+
             for (int i = 0; i < __N_ORDINAMENTI__; i++) {
                 free(vettori.v_ordinamenti[i]);
             }
-            //free_all(&tabella,&vettori);
             leggi_nome_file(nomefile);
-            lunghezza_effettiva = leggiFile(&tabella, &vettori, &n, nomefile);
+            lunghezza_effettiva = leggiFile(tabella, &vettori, &n, nomefile);
             vettori.partenza_ordinato = FALSE;
             vettori.date_ordinate = FALSE;
             vettori.codice_ordinato = FALSE;
@@ -123,7 +126,7 @@ int leggiComando(stampa tipo_stampa){
     for (int i = 0; i <__N_COMANDI__ ; i++) {
         printf("\n>");
         printf("%s",comandi[i]);
-        if (i == __N_COMANDI__ -2) {
+        if (i == __N_COMANDI__ -3) {
             if (tipo_stampa == FILE_TESTO)
                 printf(" File di testo");
             else
@@ -140,35 +143,38 @@ int leggiComando(stampa tipo_stampa){
     return result;
 }
 
-int leggiFile(dati **tabella,set_vettori *vettori, int * n,char *nome_file){ //rendere dinamica
+int leggiFile(dati *tabella,set_vettori *vettori, int * n,char *nome_file){ //rendere dinamica
     FILE* fp;
-    int righe = 0;
+    int righe;
     dati tabella_supporto;
     dati *tmp;
     dati **temp1;
     int i;
 
     fp = fopen(nome_file,"r");
+
     if (fp == NULL) {
         exit(EXIT_FAILURE);
     }
+    fscanf(fp,"%d",&righe);
+    if ((tmp = (dati *) malloc (righe * sizeof(dati))) != NULL) {
+        tabella = tmp;
+    }
+    else{
+        Heap_insufficiente = TRUE;
+        printf("\nMemoria insufficiente!");
+        exit(EXIT_FAILURE);
+    }
 
-    while (fscanf(fp,"%s%s%s%s%s%s%d",tabella_supporto.codice_tratta,tabella_supporto.partenza,
-            tabella_supporto.destinazione,tabella_supporto.data_part,tabella_supporto.orario_partenza,
-            tabella_supporto.orario_arrivo,&tabella_supporto.ritardo) != EOF && Heap_insufficiente == FALSE) {
-
-        if ((tmp = (dati *) realloc (*tabella,(righe+1) * sizeof(dati))) != NULL) {
-            *tabella = tmp; //per precauzione, dato che realloc potrebbe ritornare NULL e sovrascrivere l'indirizzo di  memoria, faccio un controllo in più
-            (*tabella)[righe] = tabella_supporto; //salvo ciò che ho letto nella casella effettiva
-            righe++;
-        } //if ((*tmp = (dati *) realloc((void *)tabella,(righe+1) * sizeof(dati))) != NULL) {
-        else{
-            Heap_insufficiente = TRUE;
-            printf("\nMemoria insufficiente!");
-            exit(EXIT_FAILURE);
-        } //else
+    for (int j = 0; j < righe; j++) {
+        fscanf(fp,"%s%s%s%s%s%s%d",tabella_supporto.codice_tratta,tabella_supporto.partenza,
+               tabella_supporto.destinazione,tabella_supporto.data_part,tabella_supporto.orario_partenza,
+               tabella_supporto.orario_arrivo,&tabella_supporto.ritardo);
+        (tabella)[j] = tabella_supporto;
     }
     fclose(fp);
+
+
     for (i = 0; i < __N_ORDINAMENTI__ && Heap_insufficiente == FALSE; i++) { //dopo aver scandito il file, creo nell'HEAP i vettori di ordinamento
         //se l'operazione fallisce allora verifico di averne almeno creato 1, e laovoro solo su quello
         //lo comunico alle altre funzioni tramite una variabile globale
@@ -218,6 +224,7 @@ void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,in
                 if (vettori->partenza_ordinato == TRUE) {
                     char chiave[__MAX_S__];
                     scanf("%s", chiave);
+                    string2upper(chiave);
                     ricerca_dicotomica(*vettori, lunghezza_tabella, chiave, 0, lunghezza_tabella);
                 } else {
                     for (int k = 0; k < lunghezza_tabella; k++) {
@@ -230,6 +237,7 @@ void esegui_comandi(dati tabella[],int lunghezza_tabella,set_vettori *vettori,in
                 if (vettori->caso_heap_insuff == r_partenza) {
                     char chiave[__MAX_S__];
                     scanf("%s", chiave);
+                    string2upper(chiave);
                     ricerca_dicotomica_noHeap(*vettori, lunghezza_tabella, chiave, 0, lunghezza_tabella);
                 } else {
                     for (int k = 0; k < lunghezza_tabella; k++) {
@@ -303,6 +311,12 @@ void string2low(char stringa[__MAX_S__]){
 
     for (int i = 0; i < strlen(stringa); i++) {
         stringa[i]=tolower(stringa[i]);
+    }
+}
+
+void string2upper(char stringa[__MAX_S__]) {
+    for (int i = 0; i < strlen(stringa); i++) {
+        stringa[i]=toupper(stringa[i]);
     }
 }
 
@@ -640,10 +654,10 @@ void stampa_log(stampa tipo,comando comando,set_vettori vettori,int lunghezza) {
 void ricerca_lineare(set_vettori vettori,int lunghezza) {
     char chiave[__MAX_S__];
     scanf("%s",chiave);
-
+    string2upper(chiave);
     printf("\nRISULTATI RICERCA: ");
     for (int i = 0; i < lunghezza; i++) {
-        if (strncmp(vettori.v_ordinamenti[r_partenza][i]->partenza,chiave,2) == 0)
+        if (strncmp((vettori.v_ordinamenti[r_partenza][i]->partenza),chiave,2) == 0)
             fprintf(stdout,"\nCodice Tratta: %s || Partenza: %s || Capolinea: %s || Data: %s || Ora partenza: %s ||"
                            "Ora arrivo: %s ", (*(vettori.v_ordinamenti[r_partenza][i])).codice_tratta, (*(vettori.v_ordinamenti[r_partenza][i])).partenza,
                     (*(vettori.v_ordinamenti[r_partenza][i])).destinazione,
