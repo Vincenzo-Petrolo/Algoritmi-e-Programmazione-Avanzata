@@ -5,12 +5,18 @@
 #define  __FILE_NAME__ "anagrafica.txt"
 #define __NUM_INFO__ 9
 #define __NUM_COMANDI__ 5
+#define __NCODICE__ 5+1
 
 /**Minor data structures*/
 typedef enum {r_acquisizione,r_codice,r_cancella,r_stampa,r_fine} decisioni;
 typedef enum {FALSE,TRUE} boolean;
 typedef enum {FILE_TESTO,STDIN} sorgente_lettura;
+boolean richiedi_cancellazione();
 /**Minor data structures*/
+
+
+
+
 
 /**Date type*/
 typedef struct {
@@ -26,11 +32,16 @@ boolean KEY_1eq(KEY_1 data_1,KEY_1 data_2);
 /**Date type*/
 
 
+
+
+
+
+
 /**Nodo*/
 /**VAL*/
 typedef char KEY;
 typedef struct {
-    KEY codice;
+    KEY codice[__NCODICE__];
     char nome[__MAX_CHARS__];
     char cognome[__MAX_CHARS__];
     data_t data;
@@ -51,15 +62,23 @@ link newNode (Item val, link next);
 link SortInsList(link h,Item val);
 link getKEY_1(link head,KEY_1 data_2);
 link KEY_listSearch(link *head,KEY k);
-link getKEY(link head,KEY codice);
+link getKEY(link head,KEY *codice);
+link node_deleteKey(link h,KEY *k);
 void node_display(link node);
-void node_delete(link* head,link node);
 void node_extract(link* head,link node);
 void acquisisci_Item(link *head);
 decisioni acquisisci_menu(link *head);
 boolean KEY_eq(KEY *k1,KEY *k2);
 /**Nodo prototypes*/
 /**Nodo*/
+
+
+
+
+
+
+
+
 
 
 int main() {
@@ -79,7 +98,7 @@ decisioni acquisisci_menu(link *head) {
     decisioni scelta;
     KEY_1 data_1,data_2;
     link occorrenza1,occorrenza2;
-    KEY k;
+    KEY k[__NCODICE__];
 
     printf("\nMENÙ");
     for (int i = 0; i < __NUM_COMANDI__; i++) {
@@ -103,8 +122,11 @@ decisioni acquisisci_menu(link *head) {
             break;
         case r_codice:
             scanf("%s",k);
-            occorrenza1=getKEY(head,k);
+            occorrenza1=getKEY(*head,k);
             node_extract(head,occorrenza1);
+            if (richiedi_cancellazione()){
+                *head = node_deleteKey(*head,k);
+            }
             break;
         case r_cancella:
             scanf("%d/%d/%d",&data_1.gg,&data_1.mm,&data_1.aaaa);
@@ -125,7 +147,6 @@ decisioni acquisisci_menu(link *head) {
         default:
             break;
     }
-
 }
 /**Chiamante*/
 
@@ -198,7 +219,7 @@ void acquisisci_Item(link *head) { //inserire o in coda o in testa!!
 
 
     while (fscanf(fp,"%s%s%s%d/%d/%d%s%s%d",read.codice,read.nome,read.cognome,&read.data.gg,&read.data.mm,&read.data.aaaa,
-                  read.via,read.citta,&read.cap) != EOF){
+                  read.via,read.citta,&read.cap) != terminazione){
         *head = SortInsList(*head,read);
     }
 
@@ -226,17 +247,18 @@ link SortInsList(link h,Item val) {
 }
 boolean richiedi_cancellazione() {
     char c;
-    printf("Vuoi eliminare l'elemento cercato?[S/n]:");
+    printf("\nVuoi eliminare l'elemento cercato?[S/n]:");
+    fflush(stdin);
     scanf("%c",&c);
 
     if (c == 'S' || c == 's'){
         return TRUE;
     }
-    else return FALSE;
+    return FALSE;
 }
-link getKEY(link head,KEY codice) {
+link getKEY(link head,KEY *codice) {
 
-    for (link x = head->next; x != NULL ; x = x->next) {
+    for (link x = head; x != NULL ; x = x->next) {
         if (strncmp(x->val.codice,codice,strlen(codice)) == 0){
             return x;
         }
@@ -255,16 +277,29 @@ void node_display(link node) {
            node->val.citta,
            node->val.cap);
 }
-void node_delete(link *head, link node) {
+link node_deleteKey(link h,KEY *k){
+    printf("\nEliminazione...");
     link x,p;
-    for (x = (*head)->next, p = *head ; x != NULL && x!= node; x = x->next,p = x);
-    p = x->next;
-    free(node);
+    if (h==NULL)
+        return NULL;
+    for (x = h,p=NULL;x!= NULL;x=x->next) {
+        if (KEY_eq(x->val.codice,k)) {
+            if (x == h) {
+                h = x->next;
+            }
+            else {
+                p->next = x->next;
+            }
+            free(x);
+            break; //devo eliminare solo 1 elemento
+        }
+    }
+    return h;
 }
+
 void node_extract(link* head,link node) {
-    printf("\nEliminazione di:");
+    printf("\nRisultato di ricera:");
     node_display(node);
-    node_delete(head,node);
 }
 boolean KEY_eq(KEY *k1,KEY *k2) {
     if (strcmp(k1,k2) == 0)
