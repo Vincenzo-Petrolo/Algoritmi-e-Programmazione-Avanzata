@@ -3,6 +3,7 @@
 #include <string.h>
 #define __MAX_CHARS__ 50+1
 #define  __FILE_NAME__ "anagrafica.txt"
+#define __LOG_FILE__ "log.txt"
 #define __NUM_INFO__ 9
 #define __NUM_COMANDI__ 5
 #define __NCODICE__ 5+1
@@ -10,7 +11,7 @@
 /**Minor data structures*/
 typedef enum {r_acquisizione,r_codice,r_cancella,r_stampa,r_fine} decisioni;
 typedef enum {FALSE,TRUE} boolean;
-typedef enum {FILE_TESTO,STDIN} sorgente_lettura;
+typedef enum {FILE_TESTO,STDIN,STDOUT} sorgente;
 boolean richiedi_cancellazione();
 /**Minor data structures*/
 
@@ -61,10 +62,9 @@ struct nodo {
 link newNode (Item val, link next);
 link SortInsList(link h,Item val);
 link getKEY_1(link head,KEY_1 data_2);
-link KEY_listSearch(link *head,KEY k);
 link getKEY(link head,KEY *codice);
 link node_deleteKey(link h,KEY *k);
-void node_display(link node);
+void node_display(link node,FILE *fp);
 void node_extract(link* head,link node);
 void acquisisci_Item(link *head);
 decisioni acquisisci_menu(link *head);
@@ -85,7 +85,6 @@ int main() {
 decisioni menu;
     link head = NULL;
 
-    acquisisci_Item(&head);
     while (acquisisci_menu(&head) != r_fine);
     return 0;
 }
@@ -93,9 +92,10 @@ decisioni menu;
 /**Chiamante*/
 decisioni acquisisci_menu(link *head) {
 
-    char menu[__NUM_COMANDI__][30] = {{"inserisci"},{"ricerca(codice)"},{"cancella"},{"stampa"},{"fine"}};
+    char menu[__NUM_COMANDI__][30] = {{"inserisci"},{"ricerca"},{"cancella"},{"stampa"},{"fine"}};
     char decisione[30];
     decisioni scelta;
+    FILE *fp;
     KEY_1 data_1,data_2;
     link occorrenza1,occorrenza2;
     KEY k[__NCODICE__];
@@ -109,7 +109,7 @@ decisioni acquisisci_menu(link *head) {
     scanf("%s",decisione);
 
     for (int j = 0; j < __NUM_COMANDI__; j++) {
-        if (strstr(menu[j],decisione) != NULL){
+        if (strcmp(menu[j],decisione) == 0){
             scelta = j;
             break;
         }
@@ -123,9 +123,11 @@ decisioni acquisisci_menu(link *head) {
         case r_codice:
             scanf("%s",k);
             occorrenza1=getKEY(*head,k);
-            node_extract(head,occorrenza1);
-            if (richiedi_cancellazione()){
-                *head = node_deleteKey(*head,k);
+            if (occorrenza1 != NULL) {
+                node_extract(head, occorrenza1);
+                if (richiedi_cancellazione()) {
+                    *head = node_deleteKey(*head, k);
+                }
             }
             break;
         case r_cancella:
@@ -138,9 +140,12 @@ decisioni acquisisci_menu(link *head) {
             }
             break;
         case r_stampa:
+            fp = fopen(__LOG_FILE__,"w");
             for (link x = *head; x != NULL ;x = x->next) {
-                node_display(x);
+                node_display(x,fp);
+                node_display(x,stdout);
             }
+            fclose(fp);
             break;
         case r_fine:
             return r_fine;
@@ -187,19 +192,27 @@ boolean KEY_1eq(KEY_1 data_1,KEY_1 data_2){
 
 /**Node functions*/
 /**VAL functions*/
-void acquisisci_Item(link *head) { //inserire o in coda o in testa!!
+void acquisisci_Item(link *head) {
+
     /* Dichiarazione variabili*/
     FILE *fp;
     Item read;
     int terminazione;
     char decisione[30];
-    sorgente_lettura tipo = STDIN;
+    sorgente tipo = -1;
     /*Fine dichiarazione*/
+
     printf("\nCome vuoi che acquisisca i dati? (File/Standard Input)\n>");
     scanf("%s",decisione);
 
-    if (strstr("File",decisione)){
+    if (strcmp("File",decisione) == 0){
         tipo = FILE_TESTO;
+    }
+    else if (strcmp("stdin",decisione) == 0){
+        tipo = STDIN;
+    }
+    else {
+        printf("\nErrore!");
     }
 
 
@@ -209,20 +222,24 @@ void acquisisci_Item(link *head) { //inserire o in coda o in testa!!
             printf("\n**********ERRORE DURANTE L'APERTURA DEL FILE********\n");
             exit(EXIT_FAILURE);
         }
-        terminazione = EOF;
+        while (fscanf(fp, "%s%s%s%d/%d/%d%s%s%d", read.codice, read.nome, read.cognome, &read.data.gg, &read.data.mm,
+                      &read.data.aaaa,
+                      read.via, read.citta, &read.cap) != EOF) {
+            *head = SortInsList(*head, read);
+        }
     }
-    else {
+    else if (tipo == STDIN){
         fp = stdin;
-        terminazione = __NUM_INFO__;
         printf("\n Digita le informazioni, attenzione nel caso il numero di campi fosse errato il processo di acquisizione terminerà!");
+        while (fscanf(fp, "%s%s%s%d/%d/%d%s%s%d", read.codice, read.nome, read.cognome, &read.data.gg, &read.data.mm,
+                      &read.data.aaaa,
+                      read.via, read.citta, &read.cap) == __NUM_INFO__) {
+            *head = SortInsList(*head, read);
+        }
     }
-
-
-    while (fscanf(fp,"%s%s%s%d/%d/%d%s%s%d",read.codice,read.nome,read.cognome,&read.data.gg,&read.data.mm,&read.data.aaaa,
-                  read.via,read.citta,&read.cap) != terminazione){
-        *head = SortInsList(*head,read);
+    if (fp != stdout){
+        fclose(fp);
     }
-
 }
 link newNode (Item val, link next) {
     link x = (link) malloc(sizeof *x);
@@ -238,19 +255,14 @@ link SortInsList(link h,Item val) {
     if (h == NULL || !data_gt(h->val.data,val.data))
         return newNode(val,h);
 
-    for (x = h->next,p=h; x!=NULL && data_gt(x->val.data,val.data); p = x,x = x->next)
-    {
-
-    }
+    for (x = h->next,p=h; x!=NULL && data_gt(x->val.data,val.data); p = x,x = x->next);
     p->next = newNode(val,x);
     return h;
 }
 boolean richiedi_cancellazione() {
     char c;
     printf("\nVuoi eliminare l'elemento cercato?[S/n]:");
-    fflush(stdin);
-    scanf("%c",&c);
-
+    scanf(" %c",&c);
     if (c == 'S' || c == 's'){
         return TRUE;
     }
@@ -266,8 +278,9 @@ link getKEY(link head,KEY *codice) {
     printf("\nCodice non trovato!");
     return NULL;
 }
-void node_display(link node) {
-    printf("\n%s %s %s %d/%d/%d %s %s %d",node->val.codice,
+void node_display(link node,FILE *fp) {
+
+    fprintf(fp,"\n%s %s %s %d/%d/%d %s %s %d",node->val.codice,
            node->val.nome,
            node->val.cognome,
            node->val.data.gg,
@@ -282,7 +295,7 @@ link node_deleteKey(link h,KEY *k){
     link x,p;
     if (h==NULL)
         return NULL;
-    for (x = h,p=NULL;x!= NULL;x=x->next) {
+    for (x = h,p=NULL;x!= NULL;x=x->next,p=x) {
         if (KEY_eq(x->val.codice,k)) {
             if (x == h) {
                 h = x->next;
@@ -299,7 +312,7 @@ link node_deleteKey(link h,KEY *k){
 
 void node_extract(link* head,link node) {
     printf("\nRisultato di ricera:");
-    node_display(node);
+    node_display(node,stdout);
 }
 boolean KEY_eq(KEY *k1,KEY *k2) {
     if (strcmp(k1,k2) == 0)
