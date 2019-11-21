@@ -37,11 +37,10 @@ int main() {
         return 1;
     }
 
-    /*Modalità di ricerca riga per riga*/
-    leggi_regularexp(regexp);
 
     while (fscanf(fp,"%s",parola) != EOF) {
         i=0;
+        leggi_regularexp(regexp);
         while (i<=strlen(parola)) {
             pointer=cercaRegexp(&parola[i++],regexp);
             if (pointer != NULL)
@@ -56,27 +55,6 @@ int main() {
 
 char* cercaRegexp(char* src,char* regexp){
 /*Confronto parola per parola*/
-/**Algoritmo
- * STEP 1: Pulire la regexp per capire cosa si vuol cercare
- *      >STEP 1.1 Scorre la regexp e per ogni metacarattere trovato
- *      ne salva la posizione,se è un punto,minuscolo,maiuscolo,
- *      se si tratta di una parentesi, controlla che tipo di parentesi
- *      è, e poi salva i caratteri. Tutte queste informazioni sono contenute
- *      in una apposita struttura dati.(compila vincoli)
- *      >STEP 1.2 Pulisce la regexp togliendo tutti i metacaratteri, in modo
- *      da agevolare l'utilizzo della strstr, per trovare facilmente l'occorrenza
- *      La pulizia della regexp è effettuata dopo ogni metacarattere incontrato,
- *      Dato che si suppone che i caratteri della regexp siano alfabetici,allora
- *      in una sottostringa verrà copiato uno 0 per ogni metacarattere
- *      e il carattere stesso della regexp
- * STEP 2: Cercare l'occorrenza nella stringa src
- *     >STEP 2.1 L'occorrenza verrà cercata parola per parola, in particolare
- *     si cercherà l'occorrenza del primo carattere nella regexp, e poi si
- *     verificherà che esistono in quella parola(quindi non ci sono spazi in mezzo)
- *     alle posizioni esatte anche gli altri caratteri. Dopodichè per ogni
- *     metacarattere (rappresentato da un vettore di vincoli_al_carattere)
- *     se vale ciò che è stato trovato
- * STEP 3: Verifiare che rispetti i vincoli posti dalla regexp*/
 
     char* pointer=NULL;
     int lunghezza_vettore_metacaratteri = strlen(regexp);
@@ -100,7 +78,7 @@ char* cercaRegexp(char* src,char* regexp){
                 }
             }
             else if (metacaratteri[l].metacarattere == NEGAZIONE_PARENTESI) {
-                for (int j = 0; j < metacaratteri[l].lunghezza_shift-3; j++) { //se la lettera di src che sto considerando in posizione i è uguale al contenuto tra parentesi, allora meta_accettabile TRUE
+                for (int j = 0; j <= metacaratteri[l].lunghezza_shift-3; j++) { //se la lettera di src che sto considerando in posizione i è uguale al contenuto tra parentesi, allora meta_accettabile TRUE
                     if (metacaratteri[l].contenuto_parentesi[j+2] == src[metacaratteri[l].posizione]) { //controllo che nella posizione della src ci sia il carattere che cerco
                         meta_accettabile = FALSE;
                     }
@@ -131,8 +109,10 @@ char* cercaRegexp(char* src,char* regexp){
 }
 
 void leggi_regularexp(char regexp[__MAX_DIM__]){
-    printf("\nInserisci l'espressione regolare: ");
+    printf("\nInserisci l'espressione regolare (oppure digita \"fine\" per terminare): ");
     scanf("%s",regexp);
+    if (strcmp(regexp,"fine") == 0)
+        exit(EXIT_SUCCESS);
 }
 
 void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,int *lunghezza_vettore_caratteri){
@@ -141,18 +121,8 @@ void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,in
     ptr = regexp;
     int j;
 
-    /**Cerco se nella stringa ci sono '\a'*/
     j = 0;
-    while ((ptr=strstr(ptr,"\\a")) != NULL) {
-        caratteri[j].metacarattere = MINUSCOLO;
-        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
 
-        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
-        caratteri[j].lunghezza_shift = 1;
-        j++;
-        ptr+=2;
-    }
-    ptr = regexp;
 
     /**Cerco se nella stringa ci sono '\A'*/
 
@@ -161,8 +131,19 @@ void compila_vincoli(char regexp[__MAX_DIM__],vincoli_al_carattere *caratteri,in
         caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
         strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
         caratteri[j].lunghezza_shift = 1;
+        ptr+=caratteri[j].lunghezza_shift;
         j++;
-        ptr+=2;
+    }
+    ptr = regexp;
+
+    /**Cerco se nella stringa ci sono '\a'*/
+    while ((ptr=strstr(ptr,"\\a")) != NULL) {
+        caratteri[j].metacarattere = MINUSCOLO;
+        caratteri[j].posizione = ptr - &regexp[0]; //differenza per capire la posizione
+        strcpy(caratteri[j].regexp_a_cui_si_riferisce,regexp);
+        caratteri[j].lunghezza_shift = 1;
+        ptr+=caratteri[j].lunghezza_shift;
+        j++;
     }
     ptr = regexp;
 
@@ -223,13 +204,12 @@ void pulizia_regexp(char regexp[__MAX_DIM__],int lunghezza_vettore_caratteri,vin
     int i;
 
     for (k = 0; k < lunghezza_vettore_caratteri; k++) {
-        for (i = metacaratteri[k].posizione+1; i <=strlen(regexp)-metacaratteri[k].lunghezza_shift; i++) {
+        for (i = metacaratteri[k].posizione+1; i <=strlen(pulita)-metacaratteri[k].lunghezza_shift; i++) {
             pulita[i] = pulita[i+metacaratteri[k].lunghezza_shift];
         }
-        for (int j = k+1; j < lunghezza_vettore_caratteri; j++) {
-            if (metacaratteri[j].posizione >= metacaratteri[k].lunghezza_shift) //aggiorno la pos del metacarattere se non è 0, che è stato spostato
+        for (int j = 0; j < lunghezza_vettore_caratteri; j++) {
+            if (metacaratteri[j].posizione > metacaratteri[k].posizione) //aggiorno la pos del metacarattere se non è 0, che è stato spostato
                 metacaratteri[j].posizione -= metacaratteri[k].lunghezza_shift;
-
         }
     }
 
