@@ -1,0 +1,27 @@
+
+Codice Tratta: faze || Partenza: catania || Capolinea: napoli || Data: 19/08/1999 || Ora partenza: 02:02:12 ||Ora arrivo: 02:03:12 
+Codice Tratta: ac130 || Partenza: sorda || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: ac130 || Partenza: sorda || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: ac138 || Partenza: alta || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 11:02:00 ||Ora arrivo: 13:01:01 
+Codice Tratta: sc4rh || Partenza: modica || Capolinea: caput_mundi || Data: 31/12/2001 || Ora partenza: 00:00:01 ||Ora arrivo: 23:59:59 
+Codice Tratta: ak47 || Partenza: modica || Capolinea: ragusa || Data: 24/12/2030 || Ora partenza: 22:40:00 ||Ora arrivo: 23:00:00 
+Codice Tratta: a780ms || Partenza: modica || Capolinea: torino || Data: 24/12/2099 || Ora partenza: 22:40:00 ||Ora arrivo: 23:21:22 
+Codice Tratta: faze || Partenza: catania || Capolinea: napoli || Data: 19/08/1999 || Ora partenza: 02:02:12 ||Ora arrivo: 02:03:12 
+Codice Tratta: ac130 || Partenza: sorda || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: ac130 || Partenza: sorda || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: ac138 || Partenza: alta || Capolinea: bassa || Data: 11/09/2001 || Ora partenza: 11:02:00 ||Ora arrivo: 13:01:01 
+Codice Tratta: sc4rh || Partenza: modica || Capolinea: caput_mundi || Data: 31/12/2001 || Ora partenza: 00:00:01 ||Ora arrivo: 23:59:59 
+Codice Tratta: ak47 || Partenza: modica || Capolinea: ragusa || Data: 24/12/2030 || Ora partenza: 22:40:00 ||Ora arrivo: 23:00:00 
+Codice Tratta: a780ms || Partenza: modica || Capolinea: torino || Data: 24/12/2099 || Ora partenza: 22:40:00 ||Ora arrivo: 23:21:22 ORDINAMENTO DATE
+Codice Tratta: FAZE || Partenza: CATANIA || Capolinea: NAPOLI || Data: 19/08/1999 || Ora partenza: 02:02:12 ||Ora arrivo: 02:03:12 
+Codice Tratta: AC130 || Partenza: SORDA || Capolinea: BASSA || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: AC138 || Partenza: ALTA || Capolinea: BASSA || Data: 11/09/2001 || Ora partenza: 11:02:00 ||Ora arrivo: 13:01:01 
+Codice Tratta: SC4RH || Partenza: MODICA || Capolinea: CAPUT_MUNDI || Data: 31/12/2001 || Ora partenza: 00:00:01 ||Ora arrivo: 23:59:59 
+Codice Tratta: AK47 || Partenza: MODICA || Capolinea: RAGUSA || Data: 24/12/2030 || Ora partenza: 22:40:00 ||Ora arrivo: 23:00:00 
+Codice Tratta: A780MS || Partenza: MODICA || Capolinea: TORINO || Data: 24/12/2099 || Ora partenza: 22:40:00 ||Ora arrivo: 23:21:22 ORDINAMENTO DATE
+Codice Tratta: FAZE || Partenza: CATANIA || Capolinea: NAPOLI || Data: 19/08/1999 || Ora partenza: 02:02:12 ||Ora arrivo: 02:03:12 
+Codice Tratta: AC130 || Partenza: SORDA || Capolinea: BASSA || Data: 11/09/2001 || Ora partenza: 10:00:00 ||Ora arrivo: 10:00:01 
+Codice Tratta: AC138 || Partenza: ALTA || Capolinea: BASSA || Data: 11/09/2001 || Ora partenza: 11:02:00 ||Ora arrivo: 13:01:01 
+Codice Tratta: SC4RH || Partenza: MODICA || Capolinea: CAPUT_MUNDI || Data: 31/12/2001 || Ora partenza: 00:00:01 ||Ora arrivo: 23:59:59 
+Codice Tratta: AK47 || Partenza: MODICA || Capolinea: RAGUSA || Data: 24/12/2030 || Ora partenza: 22:40:00 ||Ora arrivo: 23:00:00 
+Codice Tratta: A780MS || Partenza: MODICA || Capolinea: TORINO || Data: 24/12/2099 || Ora partenza: 22:40:00 ||Ora arrivo: 23:21:22 
