@@ -87,7 +87,7 @@
 
 /**GLOBAL VARIABLES*/
 
-
+//commento
 int main(int argc, char *argv[]) {
 
 	/**Variables declaration*/
