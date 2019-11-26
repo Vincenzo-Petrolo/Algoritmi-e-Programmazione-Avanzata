@@ -1,8 +1,8 @@
 #include <mylibs/menu.h>
 
 /**Constants*/
-#define __MIN_LUNGHEZZA_COLLANA__ 1
-#define __N_TIPI_PIETRE__ 4
+#define __MIN_LUNGHEZZA_COLLANA__	1
+#define __N_TIPI_PIETRE__ 		4
 /**Constants*/
 
 
@@ -12,42 +12,41 @@
 	typedef enum{ZAFFIRO,
 				SMERALDO,
 				RUBINO,
-				TOPAZIO
-				} pietra_t;
+				TOPAZIO} pietra_t;
 	
 	typedef struct{
-		unsigned int val_z;
-		unsigned int val_s;
-		unsigned int val_r;
-		unsigned int val_t;}valori_pietre_t;
+				unsigned int val_z;
+				unsigned int val_s;
+				unsigned int val_r;
+				unsigned int val_t;}valori_pietre_t;
 	/**Minor Data structures*/
 
 
 	/**Major Data structures*/
 	typedef struct{
-		int vet[__N_TIPI_PIETRE__]; //0 ZAFFIRI 1 SMERALDI 2 RUBINI 3 TOPAZI
-		int vet_presi[__N_TIPI_PIETRE__];
-		int *pietre;
-		int max_rip;
-		int ultima_pietra;
-		int counter;
+				int vet[__N_TIPI_PIETRE__]; //0 ZAFFIRI 1 SMERALDI 2 RUBINI 3 TOPAZI
+				int vet_presi[__N_TIPI_PIETRE__];
+				int *pietre;
+				int max_rip;
+				int ultima_pietra;
+				int counter;
 
-		valori_pietre_t valori;}collana_t;
+				valori_pietre_t valori;}collana_t;
 
 	/**Major Data structures*/
 
 
 	typedef struct{	
-		int pos; 
-		int n;
-		int max_lunghezza;
-		int max_valore;
-		
-		int *val; 
-		int *sol;
-		int *best_sol; 
-		
-		collana_t *collana;}wrapper_t;
+				int pos; 
+				int n;
+				int max_lunghezza;
+				int max_valore;
+				
+				int *val; 
+				int *sol;
+				int *best_sol; 
+				
+				collana_t *collana;}wrapper_t;
 
 /**Data structures*/
 
@@ -151,11 +150,11 @@ aggiungi_pietre(char *decisione,
 	
 	if (strcmp("smeraldi",decisione) 	== 0)
 			tipo_pietra 		= SMERALDO;
-	else if (strcmp("zaffiri",decisione) == 0)
+	else if (strcmp("zaffiri",decisione) 	== 0)
 			tipo_pietra 		= ZAFFIRO;
-	else if (strcmp("rubini",decisione) == 0)
+	else if (strcmp("rubini",decisione) 	== 0)
 			tipo_pietra 		= RUBINO;
-	else if (strcmp("topazi",decisione) == 0)
+	else if (strcmp("topazi",decisione) 	== 0)
 			tipo_pietra 		= TOPAZIO;
 
 	switch (tipo_pietra){
@@ -187,14 +186,14 @@ aggiungi_pietre(char *decisione,
 
 void 
 collana_init(collana_t * collana){
-	collana->pietre		= 0;
+	collana->pietre				=  0;
+	collana->ultima_pietra    	= -1;
+	collana->counter          	=  0;
 	for (int i = 0; i < __N_TIPI_PIETRE__; i++){
-		collana->vet[i] 	  =  0;
-		collana->vet_presi[i] =  0;
+		collana->vet[i] 	  	=  0;
+		collana->vet_presi[i] 	=  0;
 	}
 
-	collana->ultima_pietra    = -1;
-	collana->counter          =  0;
 }
 
 void 
