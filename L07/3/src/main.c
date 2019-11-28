@@ -9,6 +9,14 @@
 /**Data structures*/
 
 	/**Major Data structures*/
+	typedef enum{	R_LIST_UP,
+			R_OBJS_UP,
+			R_PG_ADD,
+			R_EQUIP_OBJ,
+			R_UNEQUIP_OBJ,
+			R_STATS_CAL,
+			R_FINE
+			} comando;
 
 			
 	typedef struct{
@@ -95,23 +103,82 @@ int main(int argc, char *argv[]) {
 	/**Variables declaration*/
 	const char  menu[][30]	=  {"list_up","objs_up","pg_add","pg_del","equip_obj","unequip_obj","stats_calc"};
 	tabPg* tabella_pg 	= tabPg_init();
-	tabInv_t* ptr_pg	= tabInv_init();
+	tabInv_t* ptr_inv	= tabInv_init();
+	comando comando_letto;
 	/**Variables declaration*/
 
 	do {
 		stampa_menu(menu,7);
-	} while (1);
+		comando_letto	= leggi_comando(menu);
+		switch (comando_letto)
+		{
+		case R_LIST_UP:
+			carica_pg_file(&tabella_pg,leggi_nome_file());		
+			break;
+		case R_OBJS_UP:
+			carica_inventario(ptr_inv,leggi_nome_file());
+			break;
+		case R_PG_ADD:
+			carica_pg_stdin(&tabella_pg);
+			break;	
+		case R_EQUIP_OBJ:
+			add_equip(leggi_codice(),tabella_pg,ptr_inv,leggi_nome_equip());
+			break;	
+		case R_UNEQUIP_OBJ:
+			rm_equip(leggi_codice(),tabella_pg,ptr_inv,leggi_nome_equip());
+			break;	
+		case R_STATS_CAL:
+			break;
+		case R_FINE:
+			printf("\nChiusura...");
+			break;
+		default:
+			printf("\nComando errato!");
+			break;
+		}
+	} while (comando_letto != R_FINE);
 	
-	
-
 	printf("\n");
 	return(0);
 }
 
 
 /**Functions*/
+char* leggi_nome_equip() {
+	char nome_oggetto[__MAX_S__];
+	printf("\nInserisci il nome dell'oggetto: ");
+	scanf("%s",nome_oggetto);
+	return nome_oggetto;
+}
+int
+leggi_codice() {
+	int codice;
+	printf("\nInserisci il codice del personaggio: ");
+	scanf("%d",&codice);
+	return codice;
+}
+
+
+void carica_pg_stdin(tabPg** tab_pg_ptr) {
+	pg_t pg_temp;
+
+	scanf("PG%d%s%s%d%d%d%d%d%d%d",
+		pg_temp.codice,
+		pg_temp.nome,
+		pg_temp.classe,
+		pg_temp.stats.hp,
+		pg_temp.stats.mp,
+		pg_temp.stats.atk,
+		pg_temp.stats.def,
+		pg_temp.stats.mag,
+		pg_temp.stats.spr);
+
+		newNode((*tab_pg_ptr)->headPg,
+			pg_temp,
+			(*tab_pg_ptr)->headPg->next);
+}
 void 
-carica_pg(tabPg** tab_pg_ptr,char *nome_file){
+carica_pg_file(tabPg** tab_pg_ptr,char *nome_file){
 	FILE* fp 	= fopen(nome_file,"r");
 	pg_t  pg_temp;
 
@@ -183,6 +250,7 @@ carica_inventario(tabInv_t* ptr_inv,char *nome_file){
 		ptr_inv->vettInv[i] 	= inv_tmp; 
 	}
 	fclose(fp);
+	sortInv_byname(ptr_inv);	//ordino l'inventario per nome
 }
 
 void 
@@ -290,6 +358,31 @@ rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 			strcmp(nodo_pg->personaggio.equip->vettEq[i]->nome,nome_equip) != 0; i++){
 				nodo_pg->personaggio.equip->vettEq[i] = NULL;
 	}
+}
+
+comando
+leggi_comando(char menu[][30]) {
+	comando r_tipo;
+	char 	letto[__MAX_S__];
+	
+	printf("\nInserisci cosa vuoi fare: ");
+	scanf("%s",letto);
+	
+	for ( int i = 0; i < R_FINE; i++){
+		if (strcmp(letto,menu[i]) == 0){
+			return i;	//i corrisponde ad un valore della enum dei comandi
+		}
+	}
+	return -1;			//altrimenti torna -1 per indicare il comando non valido
+	
+
+}
+
+char* leggi_nome_file() {
+	char nome_file[__MAX_S__];
+	printf("\nInserisci il nuovo nome del file: ");
+	scanf("%s",nome_file);
+	return nome_file;
 }
 
 /**Functions*/
