@@ -32,7 +32,7 @@
 		char 	nome	[__MAX_S__];
 		char 	classe	[__MAX_S__];
 		
-		tabEquip_t* equip;
+		tabEquip_t equip[__MAX_EQUIP__];
 		
 		stats_t stats; }pg_t;
 	
@@ -254,18 +254,19 @@ inv_dic_search(tabInv_t* tabInv,char *nome_oggetto,int l,int r) {
 
 void
 sortInv_byname(tabInv_t* tabInv) {
-	int i, j, l = 0, r = tabInv->nInv - 1;
+	int i, j, l 		= 0; 
+	int r 			= tabInv->nInv - 1;
 	struct inv_t x;		
 	for (i = l + 1; i <= r; i++) {
-		x = tabInv->vettInv[i];
-		j = i - 1;
+		x 		= tabInv->vettInv[i];
+		j 		= i - 1;
 		while (j >= l && strcmp(x.nome,tabInv->vettInv[j].nome) < 0) {
 			
 			tabInv->vettInv[j + 1] = tabInv->vettInv[j];
-			j--;
+			j	-=1;
 		
 		}
-		tabInv->vettInv[j + 1] = x;
+		tabInv->vettInv[j + 1] 		= x;
 	}
 }
 
@@ -277,8 +278,6 @@ add_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 							nome_equip,
 							0,
 							inventario->nInv);
-		nodo_pg->personaggio.equip->vettEq	= (tabEquip_t*) realloc(nodo_pg->personaggio.equip->vettEq,
-										nodo_pg->personaggio.equip->inUso);
 		nodo_pg->personaggio.equip->inUso	+= 1;
 		nodo_pg->personaggio.equip->vettEq[nodo_pg->personaggio.equip->inUso] = oggetto; 
 	}
