@@ -327,7 +327,7 @@ tabInv_init(tabInv_t* tab_inv) {
 
 void
 carica_inventario(tabInv_t* ptr_inv,char *nome_file){
-	FILE *fp	= fopen(nome_file,"r");
+	FILE *fp		= fopen(nome_file,"r");
 	int    n;
 	struct inv_t  inv_tmp;
 
@@ -414,15 +414,15 @@ inv_dic_search(tabInv_t* tabInv,char *nome_oggetto,int l,int r) {
 	if (l>r)
 		return NULL;
 	int m		= (r+l)/2;
-	int risultato = strncmp(nome_oggetto,
+	int risultato 	= strncmp(nome_oggetto,
 				tabInv->vettInv[m].nome,
 				strlen(tabInv->vettInv[m].nome));
 
-	if 	( risultato > 0)
+	if 	( risultato 	> 0)
 		inv_dic_search(tabInv,nome_oggetto,m+1,r);
-	else if (risultato < 0)
+	else if (risultato 	< 0)
 		inv_dic_search(tabInv,nome_oggetto,l,m-1);
-	else if (risultato == 0) {
+	else if (risultato 	== 0) {
 		return &(tabInv->vettInv[m]);
 	}
 }
@@ -438,7 +438,7 @@ sortInv_byname(tabInv_t* tabInv) {
 		j 		= i - 1;
 		while (j >= l && strcmp(x.nome,tabInv->vettInv[j].nome) < 0) {
 
-			tabInv->vettInv[j + 1] = tabInv->vettInv[j];
+			tabInv->vettInv[j + 1]	= tabInv->vettInv[j];
 			j	-=1;
 
 		}
@@ -558,8 +558,7 @@ leggi_nome_file(char* nome_file) {
 void
 stampa_menu(const char menu_str[][30],int m){
     printf("\nMENU");
-    for (int i = 0; i <=m; i++)
-    {
+    for (int i = 0; i <=m; i++) {
         printf("\n>%s",menu_str[i]);
     }
 }
