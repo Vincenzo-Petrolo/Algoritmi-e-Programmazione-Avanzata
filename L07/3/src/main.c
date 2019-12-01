@@ -72,8 +72,6 @@
 		char	nome[__MAX_S__];
 		char	tipo[__MAX_S__];
 
-		tabEquip_t* 	equip;
-
 		stats_t		buff;
 		};
 
@@ -153,17 +151,14 @@ int main(int argc, char *argv[]) {
 		switch (comando_letto)
 		{
 			case R_LIST_UP:
-				printf("\nVuoi eliminare i personaggi caricati?");
+				printf("\nVuoi eliminare i personaggi caricati precedentementeS?");
 				stampa_menu(sottomenu,2);
 				if (decisione())
 					tabPg_destroy(tabella_pg_ptr);
 				carica_pg_file(tabella_pg_ptr,leggi_nome_file(nome_file));
 				break;
 			case R_OBJS_UP:
-				printf("\nVuoi eliminare gli oggetti caricati?");
-				stampa_menu(sottomenu,2);
-				if (decisione())
-					inv_destroy(ptr_inv->vettInv);
+				inv_destroy(ptr_inv->vettInv);
 				carica_inventario(ptr_inv,leggi_nome_file(nome_file));
 				sortInv_byname(ptr_inv);
 				break;
@@ -201,7 +196,7 @@ int main(int argc, char *argv[]) {
 /**Functions*/
 
 void shift_vet(struct inv_t** vet,int n) {
-	for (int i = n; i < __MAX_EQUIP__; i++) {
+	for (int i = n; i < __MAX_EQUIP__-1; i++) {
 		vet[i] = vet[i+1];
 	}
 	
@@ -526,9 +521,10 @@ rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 					nodo_pg->personaggio.stats.spr 		= 1;
 				} else nodo_pg->personaggio.stats.spr 		-= oggetto->buff.spr;
 
-				shift_vet(nodo_pg->personaggio.equip->vettEq,i); 			//shift per evitare buchi nel vettore
 
-				nodo_pg->personaggio.equip->vettEq[i] = NULL;
+				shift_vet(nodo_pg->personaggio.equip->vettEq,i); 			//shift per evitare buchi nel vettore
+				nodo_pg->personaggio.equip->inUso		-= 1;
+				break;
 			}
 	}
 
