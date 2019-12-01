@@ -15,10 +15,9 @@
 	typedef enum{	R_LIST_UP,
 			R_OBJS_UP,
 			R_PG_ADD,
-			R_PG_DEL,
 			R_EQUIP_OBJ,
 			R_UNEQUIP_OBJ,
-			R_DISPLAY,
+			R_STATS_CAL,
 			R_FINE
 			} comando;
 
@@ -37,7 +36,7 @@
 	typedef struct{
 		int 	inUso;
 
-		struct inv_t*	vettEq[__MAX_EQUIP__]; }tabEquip_t;			//puntatore ad un elemento dell'inventario
+		struct inv_t**	vettEq; }tabEquip_t;			//puntatore ad un elemento dell'inventario
 
 	typedef struct{
 		int	codice;
@@ -45,7 +44,7 @@
 		char 	nome	[__MAX_S__];
 		char 	classe	[__MAX_S__];
 
-		tabEquip_t* equip;
+		tabEquip_t equip[__MAX_EQUIP__];
 
 		stats_t stats; }pg_t;
 
@@ -115,16 +114,15 @@ struct inv_t* inv_dic_search(tabInv_t* tabInv,char *nome_oggetto,int l,int r);
 void stampa_pg(pg_t pg);
 void carica_pg_file(tabPg* tab_pg_ptr,char *nome_file);
 void carica_pg_stdin(tabPg* tab_pg_ptr);
-void tabPg_destroy(tabPg* tabella_pg);
+void tabPg_destroy(tabPg tabella_pg);
 void carica_inventario(tabInv_t* ptr_inv,char *nome_file);
-void inv_destroy(struct inv_t * vett_inventario);
+void inv_destroy(tabInv_t tabella_inventario);
 void  newPg (link *head,pg_t val, link next);
-void delPg (int codice_pg,tabPg* tab_pg_ptr);
+void delPg (pg_t key_pg,int codice_pg,tabPg* tab_pg_ptr);
 void sortInv_byname(tabInv_t* tabInv);
 void add_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip);
 void rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip);
 void stampa_menu(const char menu_str[][30],int m);
-
 /**Prototypes*/
 
 /**GLOBAL VARIABLES*/
@@ -135,7 +133,7 @@ void stampa_menu(const char menu_str[][30],int m);
 int main(int argc, char *argv[]) {
 
 	/**Variables declaration*/
-	const char  menu[][30]	=  {"list_up","objs_up","pg_add","pg_del","equip_obj","unequip_obj","display","fine"};
+	const char  menu[][30]	=  {"list_up","objs_up","pg_add","pg_del","equip_obj","unequip_obj","stats_calc"};
 	const char  sottomenu[][30] = {"Si","No"};
 	char nome_oggetto[__MAX_S__]	= {'\0'};
 	char nome_file[__MAX_S__]	= {'\0'};
@@ -148,7 +146,7 @@ int main(int argc, char *argv[]) {
 	/**Variables declaration*/
 
 	do {
-		stampa_menu(menu,R_FINE);
+		stampa_menu(menu,7);
 		comando_letto	= leggi_comando((char (*)[30])menu);
 		switch (comando_letto)
 		{
@@ -156,22 +154,18 @@ int main(int argc, char *argv[]) {
 				printf("\nVuoi eliminare i personaggi caricati?");
 				stampa_menu(sottomenu,2);
 				if (decisione())
-					tabPg_destroy(tabella_pg_ptr);
+					tabPg_destroy(*tabella_pg_ptr);
 				carica_pg_file(tabella_pg_ptr,leggi_nome_file(nome_file));
 				break;
 			case R_OBJS_UP:
-				printf("\nVuoi eliminare gli oggetti caricati?");
+				printf("\nVuoi eliminare i personaggi caricati?");
 				stampa_menu(sottomenu,2);
 				if (decisione())
-					inv_destroy(ptr_inv->vettInv);
+					inv_destroy(*ptr_inv);
 				carica_inventario(ptr_inv,leggi_nome_file(nome_file));
-				sortInv_byname(ptr_inv);
 				break;
 			case R_PG_ADD:
 				carica_pg_stdin(tabella_pg_ptr);
-				break;
-			case R_PG_DEL:
-				delPg(leggi_codice(),tabella_pg_ptr);
 				break;
 			case R_EQUIP_OBJ:
 				add_equip(leggi_codice(),tabella_pg_ptr->headPg,ptr_inv,leggi_nome_equip(nome_oggetto));
@@ -179,10 +173,7 @@ int main(int argc, char *argv[]) {
 			case R_UNEQUIP_OBJ:
 				rm_equip(leggi_codice(),tabella_pg_ptr->headPg,ptr_inv,leggi_nome_equip(nome_oggetto));
 				break;
-			case R_DISPLAY:
-				for (link x = tabella_pg.headPg; x != NULL ; x = x->next) {
-					stampa_pg(x->personaggio);
-				}
+			case R_STATS_CAL:
 				break;
 			case R_FINE:
 				printf("\nChiusura...");
@@ -240,8 +231,8 @@ stampa_pg(pg_t pg){
 void
 carica_pg_stdin(tabPg* tab_pg_ptr) {
 	pg_t pg_temp;
-	printf("\nInserisci il personaggio a mano: ");
-	scanf(" PG%d%s%s%d%d%d%d%d%d",
+
+	scanf("PG%d%s%s%d%d%d%d%d%d",
 		&(pg_temp.codice),
 		pg_temp.nome,
 		pg_temp.classe,
@@ -251,8 +242,6 @@ carica_pg_stdin(tabPg* tab_pg_ptr) {
 		&(pg_temp.stats.def),
 		&(pg_temp.stats.mag),
 		&(pg_temp.stats.spr));
-		pg_temp.equip		= (tabEquip_t*) malloc(sizeof(tabEquip_t));
-		pg_temp.equip->inUso	= 0;
 		tab_pg_ptr->headPg 	= insHead(tab_pg_ptr->headPg,pg_temp);
 		tab_pg_ptr->nPg		+= 1;
 }
@@ -263,17 +252,15 @@ carica_pg_file(tabPg* tab_pg_ptr,char *nome_file){
 	pg_t  pg_temp;
 
 	while (fscanf(fp,"PG%d%s%s%d%d%d%d%d%d",&(pg_temp.codice),
-						pg_temp.nome,
-						pg_temp.classe,
-						&(pg_temp.stats.hp),
-						&(pg_temp.stats.mp),
-						&(pg_temp.stats.atk),
-						&(pg_temp.stats.def),
-						&(pg_temp.stats.mag),
-						&(pg_temp.stats.spr)) != EOF){
-		fgetc(fp);
-		pg_temp.equip		= (tabEquip_t*) malloc(sizeof(tabEquip_t));
-		pg_temp.equip->inUso 	= 0;																																	//to trigger the '\n' character
+																												pg_temp.nome,
+																												pg_temp.classe,
+																												&(pg_temp.stats.hp),
+																												&(pg_temp.stats.mp),
+																												&(pg_temp.stats.atk),
+																												&(pg_temp.stats.def),
+																												&(pg_temp.stats.mag),
+																												&(pg_temp.stats.spr)) != EOF){
+		fgetc(fp);																																	//to trigger the '\n' character
 		tab_pg_ptr->headPg 	= insHead(tab_pg_ptr->headPg,pg_temp);
 		stampa_pg(pg_temp);
 		tab_pg_ptr->nPg		+= 1;
@@ -281,8 +268,7 @@ carica_pg_file(tabPg* tab_pg_ptr,char *nome_file){
 	fclose(fp);
 }
 
-link 
-insHead(link head,pg_t val) {
+link insHead(link head,pg_t val) {
 	head = newNode(val,head);
 }
 
@@ -305,21 +291,16 @@ tabPg_init(tabPg* tabella_pg_ptr) {
 }
 
 void
-tabPg_destroy(tabPg *tabella_pg) {
-	link x,p;
-	if (tabella_pg->headPg == NULL)
-		return;
-	for (x = tabella_pg->headPg->next,p=tabella_pg->headPg;x != NULL;p=x,x = x->next) {
-		free(p->personaggio.equip->vettEq);
-		free(p);
+tabPg_destroy(tabPg tabella_pg) {
+	link x;
+	for (x = tabella_pg.headPg;x != NULL;x = x->next) {
+		free(x);
 	}
-	
 }
 
 tabInv_t*
 tabInv_init(tabInv_t* tab_inv) {
-	tab_inv->vettInv 	= NULL;
-	tab_inv->nInv		= 0;
+	tab_inv 	= NULL;
 	return tab_inv;
 }
 
@@ -351,12 +332,8 @@ carica_inventario(tabInv_t* ptr_inv,char *nome_file){
 	sortInv_byname(ptr_inv);	//ordino l'inventario per nome
 }
 void
-inv_destroy(struct inv_t* vett_inventario) {
-	if (vett_inventario == NULL){
-		printf("\nInventario vuoto!");
-		return;
-	}
-	free(vett_inventario);
+inv_destroy(tabInv_t tabella_inventario) {
+	free(tabella_inventario.vettInv);
 }
 
 
@@ -373,7 +350,7 @@ newPg (link *head,pg_t val, link next) {
 }
 
 void
-delPg (int codice_pg,tabPg* tab_pg_ptr) {
+delPg (pg_t key_pg,int codice_pg,tabPg* tab_pg_ptr) {
 	link x		= tab_pg_ptr->headPg;
 	link p		= NULL;
 
@@ -392,7 +369,6 @@ delPg (int codice_pg,tabPg* tab_pg_ptr) {
 			}
 			free(x);
 			printf("\nEliminato con successo");
-			tab_pg_ptr->nPg		-= 1;
 			break;
 		}
 	}
@@ -412,13 +388,13 @@ node_search_cod(link head,int codice_pg) {
 
 struct inv_t*
 inv_dic_search(tabInv_t* tabInv,char *nome_oggetto,int l,int r) {
-	if (l>r)
-		return NULL;
-	int m		= (r+l)/2;
+	int m		= (r-l)/2;
 	int risultato = strncmp(nome_oggetto,
 				tabInv->vettInv[m].nome,
 				strlen(tabInv->vettInv[m].nome));
 
+	if (m < 0)
+		return NULL;
 	if 	( risultato > 0)
 		inv_dic_search(tabInv,nome_oggetto,m+1,r);
 	else if (risultato < 0)
@@ -450,93 +426,34 @@ sortInv_byname(tabInv_t* tabInv) {
 void
 add_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 	link nodo_pg		= node_search_cod(head,codice_pg);
-	
-	if (nodo_pg 		== NULL) return;
-
 	if (nodo_pg->personaggio.equip->inUso <__MAX_EQUIP__) {
 		struct inv_t* oggetto	= inv_dic_search(inventario,
 							nome_equip,
 							0,
 							inventario->nInv);
+		nodo_pg->personaggio.equip->inUso	+= 1;
 		nodo_pg->personaggio.equip->vettEq[nodo_pg->personaggio.equip->inUso] = oggetto;
-		nodo_pg->personaggio.equip->inUso				      += 1;
-
-		if (nodo_pg->personaggio.stats.hp + oggetto->buff.hp  < 1) {
-			nodo_pg->personaggio.stats.hp 		= 1;
-		} else nodo_pg->personaggio.stats.hp 		+= oggetto->buff.hp;
-		
-		if (nodo_pg->personaggio.stats.mp + oggetto->buff.mp  < 1) {
-			nodo_pg->personaggio.stats.mp 		= 1;
-		} else nodo_pg->personaggio.stats.mp 		+= oggetto->buff.mp;
-		
-		if (nodo_pg->personaggio.stats.atk + oggetto->buff.atk  < 1) {
-			nodo_pg->personaggio.stats.atk 		= 1;
-		} else nodo_pg->personaggio.stats.atk 		+= oggetto->buff.atk;
-		
-		if (nodo_pg->personaggio.stats.def + oggetto->buff.def  < 1) {
-			nodo_pg->personaggio.stats.def 		= 1;
-		} else nodo_pg->personaggio.stats.def 		+= oggetto->buff.def;
-		
-		if (nodo_pg->personaggio.stats.mag + oggetto->buff.mag  < 1) {
-			nodo_pg->personaggio.stats.mag 		= 1;
-		} else nodo_pg->personaggio.stats.mag 		+= oggetto->buff.mag;
-		
-		if (nodo_pg->personaggio.stats.spr + oggetto->buff.spr  < 1) {
-			nodo_pg->personaggio.stats.spr 		= 1;
-		} else nodo_pg->personaggio.stats.spr 		+= oggetto->buff.spr;
 	}
 }
 
 void
 rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 	link nodo_pg		= node_search_cod(head,codice_pg);
-	if (nodo_pg 		== NULL) return;
-
-	for (	int i = 0; i < nodo_pg->personaggio.equip->inUso; i++){
-
-			if (strcmp(nodo_pg->personaggio.equip->vettEq[i]->nome,nome_equip) == 0){
-		
-				struct inv_t* oggetto = nodo_pg->personaggio.equip->vettEq[i];		
-		
-				if (nodo_pg->personaggio.stats.hp - oggetto->buff.hp  < 1) {
-					nodo_pg->personaggio.stats.hp 		= 1;
-				} else nodo_pg->personaggio.stats.hp 		-= oggetto->buff.hp;
-				
-				if (nodo_pg->personaggio.stats.mp - oggetto->buff.mp  < 1) {
-					nodo_pg->personaggio.stats.mp 		= 1;
-				} else nodo_pg->personaggio.stats.mp 		-= oggetto->buff.mp;
-				
-				if (nodo_pg->personaggio.stats.atk - oggetto->buff.atk  < 1) {
-					nodo_pg->personaggio.stats.atk 		= 1;
-				} else nodo_pg->personaggio.stats.atk 		-= oggetto->buff.atk;
-				
-				if (nodo_pg->personaggio.stats.def - oggetto->buff.def  < 1) {
-					nodo_pg->personaggio.stats.def 		= 1;
-				} else nodo_pg->personaggio.stats.def 		-= oggetto->buff.def;
-				
-				if (nodo_pg->personaggio.stats.mag - oggetto->buff.mag  < 1) {
-					nodo_pg->personaggio.stats.mag 		= 1;
-				} else nodo_pg->personaggio.stats.mag 		-= oggetto->buff.mag;
-				
-				if (nodo_pg->personaggio.stats.spr - oggetto->buff.spr  < 1) {
-					nodo_pg->personaggio.stats.spr 		= 1;
-				} else nodo_pg->personaggio.stats.spr 		-= oggetto->buff.spr;
-
+	for (int i = 0;i < nodo_pg->personaggio.equip->inUso &&
+			strcmp(nodo_pg->personaggio.equip->vettEq[i]->nome,nome_equip) != 0; i++){
 				nodo_pg->personaggio.equip->vettEq[i] = NULL;
-			}
 	}
-
 }
 
 comando
 leggi_comando(char menu[][30]) {
 	comando r_tipo;
 	char 	letto[__MAX_S__];
-	fflush(stdin);
+
 	printf("\nInserisci cosa vuoi fare: ");
 	scanf("%s",letto);
 
-	for ( int i = 0; i <=R_FINE; i++){
+	for ( int i = 0; i < R_FINE; i++){
 		if (strcmp(letto,menu[i]) == 0){
 			return i;	//i corrisponde ad un valore della enum dei comandi
 		}
@@ -556,7 +473,7 @@ leggi_nome_file(char* nome_file) {
 void
 stampa_menu(const char menu_str[][30],int m){
     printf("\nMENU");
-    for (int i = 0; i <=m; i++)
+    for (int i = 0; i < m; i++)
     {
         printf("\n>%s",menu_str[i]);
     }
