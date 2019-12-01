@@ -28,7 +28,7 @@ void attSel(int N, att *v);
 void powerset_disp_rip(int pos, int *sol, int n,att* vet,int* max_diff,int* best_sol);
 boolean check(int* sol,att* vet,int N);
 int calcola_diff(att* vet,int N,int* sol);
-att* leggi_att(int* N);
+void leggi_att(att** v,int* N);
 void att_display(int* best_sol,att* vet,int N);
 /**Prototypes*/
 
@@ -41,33 +41,35 @@ int main(int argc, char *argv[]) {
 
 	/**Variables declaration*/
 	int 	N;
-	att* 	vet	= leggi_att(&N);
+	att* 	vet;
 	/**Variables declaration*/
-	attSel(N,vet);
 
+	leggi_att(&vet,&N);
+	attSel(N,vet);
+	printf("\n");
 	return(0);
 }
 
 
 /**Functions*/
 
-att* leggi_att(int* N){
+void leggi_att(att** v,int* N){
 	
 	FILE* fp;
-	att* v;
 	
 	if ((fp = fopen(__NOME_FILE__,"r")) == NULL){
-		printf("\nErrore in apertura!");
+		printf("\nErrore in apertura!\n");
 		exit(EXIT_SUCCESS);
 	}
 	
 	fscanf(fp,"%d",N);
 	
-	v = (att*) malloc( *N * sizeof *v );
+	*v = (att*) malloc( *N * sizeof *v );
 	
 	for (int i = 0; i < *N; i++) {
-		fscanf(fp,"%d%d",&(v[i].s),&(v[i].f));
+		fscanf(fp,"%d%d",&((*v)[i].s),&((*v)[i].f));
 	}
+	fclose(fp);
 }
 
 void attSel(int N, att *v){
@@ -86,6 +88,7 @@ void att_display(int* best_sol,att* vet,int N) {
 			printf("{%d,%d} ",vet[i].s,vet[i].f);
 		}
 	}
+	printf("}");
 	
 }
 
@@ -105,11 +108,12 @@ powerset_disp_rip(int pos, int *sol, int n,att* vet,int* max_diff,int* best_sol)
 		}
 		return;
 	}
-
-	sol[pos] = 0;
-	powerset_disp_rip(pos+1, sol, n,vet,max_diff,best_sol);
+	
 	sol[pos] = 1;
 	powerset_disp_rip(pos+1, sol, n,vet,max_diff,best_sol);
+	sol[pos] = 0;
+	powerset_disp_rip(pos+1, sol, n,vet,max_diff,best_sol);
+	
 }
 
 boolean
@@ -118,7 +122,7 @@ check(int* sol,att* vet,int N) {
 
 		if (sol[i] 	== 1) {
 		
-			for (int j = i; j < N; j++) {
+			for (int j = i+1; j < N; j++) {
 		
 				if (sol[j] 	== 1){
 		
