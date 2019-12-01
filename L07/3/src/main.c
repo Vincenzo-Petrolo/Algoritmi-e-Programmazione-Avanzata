@@ -310,7 +310,7 @@ tabPg_destroy(tabPg *tabella_pg) {
 	if (tabella_pg->headPg == NULL)
 		return;
 	for (x = tabella_pg->headPg->next,p=tabella_pg->headPg;x != NULL;p=x,x = x->next) {
-		free(p->personaggio.equip->vettEq);
+		free(p->personaggio.equip);
 		free(p);
 	}
 	
@@ -380,24 +380,21 @@ delPg (int codice_pg,tabPg* tab_pg_ptr) {
 	if (x == NULL)
 		return;
 	printf("\nEliminazione...");
-
-	for (; x != NULL;p 	= x,
-			 x	= x->next){
+	for (;x != NULL;p=x,x = x->next) {
 		if (codice_pg == x->personaggio.codice){
 			if (x == tab_pg_ptr->headPg){
 				tab_pg_ptr->headPg->next = x->next;
 			}
 			else {
-				p->next		= x->next;
+				p->next			= x->next;
 			}
-			free(x);
 			printf("\nEliminato con successo");
-			tab_pg_ptr->nPg		-= 1;
+			tab_pg_ptr->nPg			-= 1;
+			free(x->personaggio.equip);
+			free(x);
 			break;
 		}
 	}
-	if (x == NULL)
-		printf("\nPersonaggio non trovato");
 }
 
 link
