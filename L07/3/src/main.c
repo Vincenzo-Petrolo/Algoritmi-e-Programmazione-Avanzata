@@ -200,6 +200,13 @@ int main(int argc, char *argv[]) {
 
 /**Functions*/
 
+void shift_vet(struct inv_t** vet,int n) {
+	for (int i = n; i < __MAX_EQUIP__; i++) {
+		vet[i] = vet[i+1];
+	}
+	
+}
+
 boolean
 decisione(){
 	char risposta[__MAX_S__];
@@ -518,6 +525,8 @@ rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 				if (nodo_pg->personaggio.stats.spr - oggetto->buff.spr  < 1) {
 					nodo_pg->personaggio.stats.spr 		= 1;
 				} else nodo_pg->personaggio.stats.spr 		-= oggetto->buff.spr;
+
+				shift_vet(nodo_pg->personaggio.equip->vettEq,i); 			//shift per evitare buchi nel vettore
 
 				nodo_pg->personaggio.equip->vettEq[i] = NULL;
 			}
