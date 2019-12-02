@@ -10,7 +10,7 @@
 /**Data structures*/
 	typedef enum{ORIZZONTALE,VERTICALE} rotazione_t;
 	typedef enum{FALSE,TRUE} boolean;
-	typedef enum{A,B,V,N,G,NC} colori_t;
+	typedef char colori_t;
 
 	typedef struct _sub_tile {
 		int		val;
@@ -41,6 +41,7 @@
 
 /**Prototypes*/
 void leggi_scacchiera(tile_t*** tiles_m,tile_t* pool_tasselli);
+void leggi_pool(tile_t **tiles_pool);
 int valuta_punteggio(board_t** board,int R,int C);
 void disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,board_t** best_sol, int n_tasselli, int R,int C);
 /**Prototypes*/
@@ -54,16 +55,35 @@ int main(int argc, char *argv[]) {
 
 	/**Variables declaration*/
 	tile_t **tiles_m;
-
+	tile_t	*tiles_pool;
 	/**Variables declaration*/
-
-
+	leggi_pool(&tiles_pool);
+	leggi_scacchiera(&tiles_m,tiles_pool);
+	printf("\n");
 	return(0);
 }
 
 
 /**Functions*/
 
+void
+leggi_pool(tile_t **tiles_pool) {
+	FILE* fp 	= fopen(__NF_TILES__,"r");
+	int n;
+	if (fp == NULL){
+		printf("\nErrore durante l'apertura del file!");
+		exit(EXIT_FAILURE);
+	}
+	fscanf(fp,"%d",&n);
+	*tiles_pool = (tile_t*) malloc(n*sizeof(tile_t));
+
+	for (int i = 0; i < n; i++) {
+		fscanf("%c%d%c%d",	(*tiles_pool)[i].tile[ORIZZONTALE].	colore,
+					(*tiles_pool)[i].tile[ORIZZONTALE].	val,
+					(*tiles_pool)[i].tile[VERTICALE].	colore,
+					(*tiles_pool)[i].tile[VERTICALE].	val);
+	}
+}
 void 
 leggi_scacchiera(tile_t*** tiles_m,tile_t* pool_tasselli) {
 	FILE* fp = fopen(__NF_BOARD__,"r");
@@ -84,7 +104,6 @@ leggi_scacchiera(tile_t*** tiles_m,tile_t* pool_tasselli) {
 			fscanf(fp,"%d/%d",&((*tiles_m)[i][j].id),&tmp);
 			pool_tasselli[(*tiles_m)[i][j].id].rot	= tmp;
 		}
-		
 	}
 	
 }
