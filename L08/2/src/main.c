@@ -199,7 +199,7 @@ leggi_scacchiera(board_t*** tiles_m,tile_t* pool_tasselli,int* R,int* C) {
 			
 			if ( (*tiles_m)[i][j].tessera.id != -1) {
 
-				fscanf(fp,"%d",&pool_tasselli[ (*tiles_m)[i][j].tessera.id ]);	//salvo nella posizione che ho appena letto se non era -1
+				fscanf(fp,"%d",&(pool_tasselli[ (*tiles_m)[i][j].tessera.id ].rot) );	//salvo nella posizione che ho appena letto se non era -1
 				pool_tasselli[(*tiles_m)[i][j].tessera.id].usata	= TRUE;
 			
 			}
@@ -240,9 +240,6 @@ valuta_punteggio(board_t** board,int R,int C) {
 			risultato 		+= curr_ris;	
 	}
 
-	j 						= 0;
-	i 						= 0;
-
 	/**Calcolo il valore di tutte le colonne*/
 	
 	for (j = 0; j < C; j++) {
@@ -251,7 +248,7 @@ valuta_punteggio(board_t** board,int R,int C) {
 		
 		col_eq 				= TRUE;
 	
-		for (; i < R && col_eq; i++) {
+		for (i = 0; i < R && col_eq; i++) {
 			
 			if (colore_iniziale == board[i][j].tessera.tile[ORIZZONTALE].colore) {	
 				curr_ris 	+= board[i][j].tessera.tile->val;
@@ -268,7 +265,8 @@ valuta_punteggio(board_t** board,int R,int C) {
 
 void
 disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,board_t** best_sol, int n_tasselli, int R,int C) {
-	int i,j;
+	int i					= 0;
+	int j					= 0;
 	
 	if (pos >= R*C) {	
 		int curr_punteggio = valuta_punteggio(board,R,C);
@@ -277,9 +275,9 @@ disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,boa
 			
 			*max_punteggio = curr_punteggio;
 			
-			for (int i = 0; i < R; i++) {
+			for (i = 0; i < R; i++) {
 			
-				for (int j = 0; j < C; j++) {
+				for (j = 0; j < C; j++) {
 					best_sol[i][j]	= board[i][j];
 				}
 			
@@ -289,8 +287,8 @@ disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,boa
 		
 	}
 
-	i						= R/pos;
-	j						= C%pos;
+	i						= pos/R;
+	j						= pos%C;
 	
 	if (board[i][j].vuoto	!= -1){
 		disp_sempl(pos+1,sacco_tasselli,board,max_punteggio,best_sol,n_tasselli, R,C);
