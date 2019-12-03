@@ -1,21 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
+
+/**Constants*/
+
 #define __NF_TILES__ "tiles.txt"
 #define __NF_BOARD__ "board.txt"
 
 /**Constants*/
-/**Constants*/
 
 
 /**Data structures*/
-	typedef enum{ORIZZONTALE,VERTICALE} rotazione_t;
-	typedef enum{FALSE,TRUE} boolean;
+	
+	typedef enum{	ORIZZONTALE,
+					VERTICALE
+	} rotazione_t;
+	
+	typedef enum{	FALSE,
+					TRUE
+	} boolean;
+	
 	typedef char colori_t;
 
 	typedef struct _sub_tile {
 		int			val;
 
 		colori_t	colore;
+	
 	}sub_tile_t;
 	
 	/**Major Data structures*/
@@ -27,12 +37,14 @@
 		boolean 	usata;
 		
 		int 		id;
+	
 	}tile_t;
 	
 	typedef struct _board {
 		tile_t 		tessera;
 		
 		int	 	vuoto;
+	
 	}board_t;
 	
 
@@ -101,7 +113,7 @@ int main(int argc, char *argv[]) {
 
 /**Functions*/
 
-void 
+void //it is  wrapper function
 best_sol(board_t** tiles_m,tile_t* tiles_pool){
 	
 	int max_punteggio = 0;
@@ -233,13 +245,13 @@ valuta_punteggio(board_t** board,int R,int C) {
 
 	/**Calcolo il valore di tutte le colonne*/
 	
-	for (j = 0; j < R; j++) {
+	for (j = 0; j < C; j++) {
 	
 		colore_iniziale 	= board[i][j].tessera.tile[ORIZZONTALE].colore;
 		
 		col_eq 				= TRUE;
 	
-		for (; i < C && col_eq; i++) {
+		for (; i < R && col_eq; i++) {
 			
 			if (colore_iniziale == board[i][j].tessera.tile[ORIZZONTALE].colore) {	
 				curr_ris 	+= board[i][j].tessera.tile->val;
@@ -261,7 +273,7 @@ disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,boa
 	if (pos >= R*C) {	
 		int curr_punteggio = valuta_punteggio(board,R,C);
 		
-		if (curr_punteggio>*max_punteggio){
+		if ( curr_punteggio > (*max_punteggio) ){
 			
 			*max_punteggio = curr_punteggio;
 			
