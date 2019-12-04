@@ -35,15 +35,13 @@
 		sub_tile_t 	tile[2];
 		
 		boolean 	usata;
-		
-		int 		id;
-	
+			
 	}tile_t;
 	
 	typedef struct _board {
-		tile_t 		tessera;
-		
-		int	 	vuoto;
+		int 		id;
+
+		boolean	 	vuoto;
 	
 	}board_t;
 	
@@ -57,38 +55,42 @@
 /**Data structures*/
 
 /**Prototypes*/
-void leggi_scacchiera(	board_t*** tiles_m,
-						tile_t* pool_tasselli,
-						int *R,
-						int *C);
+void leggi_scacchiera(	board_t*** 	tiles_m,
+						tile_t* 	pool_tasselli,
+						int *		R,
+						int *		C);
 
 
-void leggi_pool(		tile_t **tiles_pool,
-						int* n);
+void leggi_pool(		tile_t**	tiles_pool,
+						int* 		n);
 
 
-void disp_sempl(		int pos,
-						tile_t* sacco_tasselli,
-						board_t** board,
-						int* max_punteggio,
-						board_t** best_sol,
-						int n_tasselli,
-						int R,
-						int C);
+void disp_sempl(		int 		pos,
+						tile_t* 	sacco_tasselli,
+						board_t** 	board,
+						int* 		max_punteggio,
+						board_t** 	best_sol,
+						int 		n_tasselli,
+						int 		R,
+						int 		C);
 
 
-void best_sol(			board_t** tiles_m,
-						tile_t* tiles_pool);
+void best_sol(			board_t** 	tiles_m,
+						tile_t* 	tiles_pool);
 
 
-void display_sol(		board_t** best_sol,
-						int R,
-						int C);
+void display_sol(		board_t** 	best_sol,
+						int 		R,
+						int 		C);
 
 
-int valuta_punteggio(	board_t** board,
-						int R,
-						int C);
+int valuta_punteggio(	board_t** 	board,
+						tile_t* 	pool,
+						int 		R,
+						int 		C);
+
+void rotate(			tile_t* tile,
+						int k);
 
 /**Prototypes*/
 
@@ -105,7 +107,7 @@ int main(int argc, char *argv[]) {
 	/**Variables declaration*/
 	
 	best_sol(tiles_m,tiles_pool);
-	printf("\n");
+	printf("\n");	
 	
 	return(0);
 }
@@ -113,7 +115,7 @@ int main(int argc, char *argv[]) {
 
 /**Functions*/
 
-void //it is  wrapper function
+void
 best_sol(board_t** tiles_m,tile_t* tiles_pool){
 	
 	int max_punteggio = 0;
@@ -132,6 +134,8 @@ best_sol(board_t** tiles_m,tile_t* tiles_pool){
 	}
 	
 	disp_sempl(0,tiles_pool,tiles_m,&max_punteggio,best_sol,n_tasselli,R,C);
+	display_sol(best_sol,R,C);
+	printf("\nPUNTEGGIO: %d",max_punteggio);
 }
 
 void
@@ -142,7 +146,7 @@ display_sol(board_t** best_sol,int R,int C) {
 		printf("\n[ ");
 		
 		for (int j = 0; j < C; j++) {
-			printf("%d ",best_sol[i][j].tessera.id);
+			printf("%d ",best_sol[i][j].id);
 		}
 
 		printf("]");
@@ -161,15 +165,14 @@ leggi_pool(tile_t **tiles_pool,int* n) {
 
 	fscanf(fp,"%d",n);
 	*tiles_pool = (tile_t*) malloc(*n*sizeof(tile_t));
-
+	fgetc(fp);
 	for (int i = 0; i < *n; i++) {
 	
-		fscanf("%c%d%c%d",	&((*tiles_pool)[i].tile[ORIZZONTALE].colore),
-							&((*tiles_pool)[i].tile[ORIZZONTALE].val),
-							&((*tiles_pool)[i].tile[VERTICALE].colore),
-							&((*tiles_pool)[i].tile[VERTICALE].val));
-		
-		(*tiles_pool)[i].id		= i;
+		fscanf(fp,"%c %d %c %d",	&((*tiles_pool)[i].tile[ORIZZONTALE].colore),
+									&((*tiles_pool)[i].tile[ORIZZONTALE].val),
+									&((*tiles_pool)[i].tile[VERTICALE].colore),
+									&((*tiles_pool)[i].tile[VERTICALE].val));
+		fgetc(fp);
 		(*tiles_pool)[i].usata	= FALSE;
 	}
 }
@@ -195,23 +198,30 @@ leggi_scacchiera(board_t*** tiles_m,tile_t* pool_tasselli,int* R,int* C) {
 		
 		for (int j = 0; j < (*C); j++) {
 		
-			fscanf(fp,"%d/",&((*tiles_m)[i][j].tessera.id));
+			fscanf(fp,"%d/",&((*tiles_m)[i][j].id));
 			
-			if ( (*tiles_m)[i][j].tessera.id != -1) {
+			if ( (*tiles_m)[i][j].id != -1) {
 
-				fscanf(fp,"%d",&(pool_tasselli[ (*tiles_m)[i][j].tessera.id ].rot) );	//salvo nella posizione che ho appena letto se non era -1
-				pool_tasselli[(*tiles_m)[i][j].tessera.id].usata	= TRUE;
+				(*tiles_m)[i][j].vuoto								= FALSE;
+				fscanf(fp,"%d",&(pool_tasselli[ (*tiles_m)[i][j].id ].rot) );	//salvo nella posizione che ho appena letto se non era -1
+	
+				if ((pool_tasselli[ (*tiles_m)[i][j].id ].rot) == 1)
+					rotate(pool_tasselli,(*tiles_m)[i][j].id);						//ruoto il tassello
+	
+				pool_tasselli[(*tiles_m)[i][j].id].usata			= TRUE;	
 			
 			}
 			else {
-				fgetc(fp);														//supero il valore numerico dopo lo /
+			
+				(*tiles_m)[i][j].vuoto								= TRUE;
+				fscanf(fp,"%d",&((*tiles_m)[i][j].id));														//supero il valore numerico dopo lo /
 			}
 		}
 	}
 }
 
 int
-valuta_punteggio(board_t** board,int R,int C) {
+valuta_punteggio(board_t** board,tile_t* pool,int R,int C) {
 	int risultato			= 0;
 	int curr_ris 			= 0;
 	int i,j;
@@ -221,15 +231,15 @@ valuta_punteggio(board_t** board,int R,int C) {
 	/**Calcolo il valore di tutte le righe*/
 	
 	for (i = 0; i < R; i++) {
-	
-		colore_iniziale 	= board[i][j].tessera.tile[ORIZZONTALE].colore;
+		j = 0;
+		colore_iniziale 	= pool[ board[i][j].id ].tile[ORIZZONTALE].colore;		//accesso mediante indice
 		col_eq 				= TRUE;
-	
-		for (; j < C && col_eq; j++) {
+		curr_ris 			= 0;
+		for (j=0; j < C && col_eq; j++) {
 			
-			if (colore_iniziale == board[i][j].tessera.tile[ORIZZONTALE].colore) {	
+			if (colore_iniziale == pool[ board[i][j].id ].tile[ORIZZONTALE].colore) {	
 				
-				curr_ris 	+= board[i][j].tessera.tile->val;
+				curr_ris 	+= pool[ board[i][j].id ].tile[ORIZZONTALE].val;
 			
 			}
 			else col_eq 	= FALSE;
@@ -241,17 +251,15 @@ valuta_punteggio(board_t** board,int R,int C) {
 	}
 
 	/**Calcolo il valore di tutte le colonne*/
-	
 	for (j = 0; j < C; j++) {
-	
-		colore_iniziale 	= board[i][j].tessera.tile[ORIZZONTALE].colore;
-		
+		i = 0;
+		colore_iniziale 	= pool[ board[i][j].id ].tile[VERTICALE].colore;
 		col_eq 				= TRUE;
-	
+		curr_ris			= 0;
 		for (i = 0; i < R && col_eq; i++) {
 			
-			if (colore_iniziale == board[i][j].tessera.tile[ORIZZONTALE].colore) {	
-				curr_ris 	+= board[i][j].tessera.tile->val;
+			if (colore_iniziale == pool[ board[i][j].id ].tile[VERTICALE].colore) {	
+				curr_ris 	+= pool[ board[i][j].id ].tile[VERTICALE].val;
 			}
 			else col_eq 	= FALSE;
 		}
@@ -265,12 +273,14 @@ valuta_punteggio(board_t** board,int R,int C) {
 
 void
 disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,board_t** best_sol, int n_tasselli, int R,int C) {
-	int i					= 0;
-	int j					= 0;
-	
+	int i;
+	int j;
+
 	if (pos >= R*C) {	
-		int curr_punteggio = valuta_punteggio(board,R,C);
-		
+		int curr_punteggio = valuta_punteggio(board,sacco_tasselli,R,C);
+		if (curr_punteggio == 115 ) {
+			printf("ciao");
+		}
 		if ( curr_punteggio > (*max_punteggio) ){
 			
 			*max_punteggio = curr_punteggio;
@@ -282,15 +292,14 @@ disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,boa
 				}
 			
 			}
-		
 		}
-		
+		return;
 	}
 
 	i						= pos/R;
 	j						= pos%C;
 	
-	if (board[i][j].vuoto	!= -1){
+	if (!board[i][j].vuoto){				//Se non vuoto => occupato => ricorro
 		disp_sempl(pos+1,sacco_tasselli,board,max_punteggio,best_sol,n_tasselli, R,C);
 		return;
 	}	
@@ -299,21 +308,28 @@ disp_sempl(int pos,tile_t* sacco_tasselli,board_t** board,int* max_punteggio,boa
 	
 		if(sacco_tasselli[k].usata == FALSE){
 	
+			board[i][j].id				= k;
+
+			board[i][j].vuoto			= FALSE;
 			sacco_tasselli[k].usata		= TRUE;
-			board[i][j].tessera			= sacco_tasselli[k];
-			board[i][j].vuoto			= k;
-			board[i][j].tessera.rot		= ORIZZONTALE;
-	
+
 			disp_sempl(pos+1,sacco_tasselli,board,max_punteggio,best_sol,n_tasselli, R,C);
 	
-			board[i][j].tessera.rot		= VERTICALE;
-	
+			rotate(sacco_tasselli,k);														//prima la inserisco normalmente, poi la ruoto
+
 			disp_sempl(pos+1,sacco_tasselli,board,max_punteggio,best_sol,n_tasselli, R,C);
-	
-			board[i][j].vuoto			= -1;
+
+			board[i][j].vuoto			= TRUE;
 			sacco_tasselli[k].usata		= FALSE;
 		}
 	}
+}
+
+void rotate(tile_t* tile,int k) {
+	sub_tile_t tmp;
+	tmp 						= tile[k].tile[ORIZZONTALE];
+	tile[k].tile[ORIZZONTALE] 	= tile[k].tile[VERTICALE];
+	tile[k].tile[VERTICALE] 	= tmp;
 }
 /**Functions*/
 
