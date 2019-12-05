@@ -16,7 +16,7 @@ const char  menu[][30]	=  		{
 
 const char  sottomenu[][30] = 	{	"si",
 									"no"
-};	
+};
 /**Constants*/
 
 
@@ -67,15 +67,15 @@ void stampa_menu(const char menu_str[][30],int m);
 int main(int argc, char *argv[]) {
 
 	/**Variables declaration*/
-	char nome_oggetto[__MAX_S__]	= {'\0'};
-	char nome_file[__MAX_S__]	= {'\0'};
+	char 		nome_oggetto[__MAX_S__]		= {'\0'};
+	char 		nome_file[__MAX_S__]		= {'\0'};
 	/**Variables declaration*/
-	tabPg tabella_pg;
-	tabInv_t inventario;
-	comando comando_letto;
+	tabPg		tabella_pg;
+	tabInv_t 	inventario;
+	comando 	comando_letto;
 
-	tabPg* tabella_pg_ptr 	= tabPg_init(&tabella_pg);
-	tabInv_t* ptr_inv	= tabInv_init(&inventario);
+	tabPg*		tabella_pg_ptr 				= tabPg_init(&tabella_pg);
+	tabInv_t*	ptr_inv						= tabInv_init(&inventario);
 	/**Variables declaration*/
 
 	do {
@@ -90,32 +90,41 @@ int main(int argc, char *argv[]) {
 					tabPg_destroy(tabella_pg_ptr);
 				carica_pg_file(tabella_pg_ptr,leggi_nome_file(nome_file));
 				break;
+
 			case R_PG_ADD:
 				carica_pg_stdin(tabella_pg_ptr);
 				break;
+
 			case R_PG_DEL:
 				delPg(leggi_codice(),tabella_pg_ptr);
 				break;
+
 			case R_EQUIP_OBJ:
 				add_equip(leggi_codice(),tabella_pg_ptr->headPg,ptr_inv,leggi_nome_equip(nome_oggetto));
 				break;
+
 			case R_UNEQUIP_OBJ:
 				rm_equip(leggi_codice(),tabella_pg_ptr->headPg,ptr_inv,leggi_nome_equip(nome_oggetto));
 				break;
+
 			case R_DISPLAY:
 				for (link x = tabella_pg.headPg; x != NULL ; x = x->next) {
 					stampa_pg(x->personaggio);
 				}
 				break;
+
 			case R_SEARCH_PG:
 				stampa_dettagli(node_search_cod(tabella_pg.headPg,leggi_codice()));
 				break;
+
 			case R_SEARCH_OBJ:
 				stampa_oggetto(inv_dic_search(ptr_inv,leggi_nome_equip(nome_oggetto),0,ptr_inv->nInv));
 				break;
+
 			case R_FINE:
 				printf("\nChiusura...");
 				break;
+
 			default:
 				printf("\nComando errato!");
 				break;
@@ -123,7 +132,6 @@ int main(int argc, char *argv[]) {
 	} while (comando_letto != R_FINE);
 
 	printf("\n");
-
 
 	return(0);
 }
@@ -157,7 +165,6 @@ comando
 leggi_comando(char menu[][30]) {
 	comando r_tipo;
 	char 	letto[__MAX_S__];
-	fflush(stdin);
 	printf("\nInserisci cosa vuoi fare: ");
 	scanf("%s",letto);
 
