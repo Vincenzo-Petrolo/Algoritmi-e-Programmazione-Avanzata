@@ -4,6 +4,11 @@ tabInv_t*
 tabInv_init(tabInv_t* tab_inv) {
 	tab_inv->vettInv 	= NULL;
 	tab_inv->nInv		= 0;
+	char nome_file[__MAX_S__];
+	printf("\nInserisci il nome dell'inventario: ");
+	scanf("%s",nome_file);
+	carica_inventario(tab_inv,nome_file);
+	sortInv_byname(tab_inv);			
 	return tab_inv;
 }
 
@@ -85,5 +90,23 @@ inv_dic_search(tabInv_t* tabInv,char *nome_oggetto,int l,int r) {
 		inv_dic_search(tabInv,nome_oggetto,l,m-1);
 	else if (risultato 	== 0) {
 		return &(tabInv->vettInv[m]);
+	}
+}
+
+void
+stampa_oggetto(struct inv_t* oggetto){
+	if (oggetto != NULL) {
+		printf("\nNOME: %s\nTIPO: %s\n\tHP: %d\n\tMP: %d\n\tATK: %d\n\tDEF: %d\n\tMAG: %d\n\tSPR: %d",
+				oggetto->nome,
+				oggetto->tipo,
+				oggetto->buff.hp,
+				oggetto->buff.mp,
+				oggetto->buff.atk,
+				oggetto->buff.def,
+				oggetto->buff.mag,
+				oggetto->buff.spr);
+	}
+	else {
+		printf("\nIl nome è errato oppure l'oggetto non esiste");
 	}
 }

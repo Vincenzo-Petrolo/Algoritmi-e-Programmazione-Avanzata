@@ -226,4 +226,27 @@ rm_equip(int codice_pg,link head,tabInv_t* inventario,char *nome_equip) {
 
 }
 
+void 
+stampa_dettagli(link node_pg) {
+	int i;
+	if (node_pg != NULL){
+		stampa_pg(node_pg->personaggio);
+		printf("EQUIPAGGIAMENTO:");
+		for (i = 0; i < node_pg->personaggio.equip->inUso; i++) {
+			printf("\nNOME: %s\nTIPO: %s\n\tHP: %d\n\tMP: %d\n\tATK: %d\n\tDEF: %d\n\tMAG: %d\n\tSPR: %d",
+					node_pg->personaggio.equip->vettEq[i]->nome,
+					node_pg->personaggio.equip->vettEq[i]->tipo,
+					node_pg->personaggio.equip->vettEq[i]->buff.hp,
+					node_pg->personaggio.equip->vettEq[i]->buff.mp,
+					node_pg->personaggio.equip->vettEq[i]->buff.atk,
+					node_pg->personaggio.equip->vettEq[i]->buff.def,
+					node_pg->personaggio.equip->vettEq[i]->buff.mag,
+					node_pg->personaggio.equip->vettEq[i]->buff.spr);
+		}
+	}
+	else {
+		printf("\nPersonaggio non trovato");
+	}
+}
+
 

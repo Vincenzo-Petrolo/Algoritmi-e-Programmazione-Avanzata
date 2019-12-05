@@ -70,6 +70,8 @@ void rm_equip(          int codice_pg,
                         link head,
                         tabInv_t* inventario,
                         char *nome_equip);
+
+void stampa_dettagli(   link node_pg);
 /**Prototypes*/
 
 

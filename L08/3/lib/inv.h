@@ -62,6 +62,7 @@
                                         int l,
                                         int r);
 
+    void            stammpa_oggetto(    struct inv_t* oggetto);
     /*Prototypes*/
 
 

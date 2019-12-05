@@ -2,18 +2,20 @@
 #include "../lib/pg.c"
 
 /**Constants*/
-const char  menu[][30]	=  		{	"list_up",
-									"objs_up",
+const char  menu[][30]	=  		{	
+									"pg_upload",
 									"pg_add",
 									"pg_del",
 									"equip_obj",
 									"unequip_obj",
 									"display",
+									"search_pg",
+									"search_obj",
 									"fine"
 };
 
-const char  sottomenu[][30] = 	{	"Si",
-									"No"
+const char  sottomenu[][30] = 	{	"si",
+									"no"
 };	
 /**Constants*/
 
@@ -29,14 +31,15 @@ typedef enum {
 			TRUE
 }boolean;
 
-typedef enum{	
-			R_LIST_UP,
-			R_OBJS_UP,
+typedef enum{
+			R_LIST_UP,	
 			R_PG_ADD,
 			R_PG_DEL,
 			R_EQUIP_OBJ,
 			R_UNEQUIP_OBJ,
 			R_DISPLAY,
+			R_SEARCH_PG,
+			R_SEARCH_OBJ,
 			R_FINE
 } comando;
 
@@ -81,16 +84,11 @@ int main(int argc, char *argv[]) {
 		switch (comando_letto)
 		{
 			case R_LIST_UP:
-				printf("\nVuoi eliminare i personaggi caricati precedentementeS?");
+				printf("\nVuoi eliminare i personaggi caricati precedentemente?");
 				stampa_menu(sottomenu,2);
 				if (decisione())
 					tabPg_destroy(tabella_pg_ptr);
 				carica_pg_file(tabella_pg_ptr,leggi_nome_file(nome_file));
-				break;
-			case R_OBJS_UP:
-				inv_destroy(ptr_inv->vettInv);
-				carica_inventario(ptr_inv,leggi_nome_file(nome_file));
-				sortInv_byname(ptr_inv);
 				break;
 			case R_PG_ADD:
 				carica_pg_stdin(tabella_pg_ptr);
@@ -108,6 +106,12 @@ int main(int argc, char *argv[]) {
 				for (link x = tabella_pg.headPg; x != NULL ; x = x->next) {
 					stampa_pg(x->personaggio);
 				}
+				break;
+			case R_SEARCH_PG:
+				stampa_dettagli(node_search_cod(tabella_pg.headPg,leggi_codice()));
+				break;
+			case R_SEARCH_OBJ:
+				stampa_oggetto(inv_dic_search(ptr_inv,leggi_nome_equip(nome_oggetto),0,ptr_inv->nInv));
 				break;
 			case R_FINE:
 				printf("\nChiusura...");
