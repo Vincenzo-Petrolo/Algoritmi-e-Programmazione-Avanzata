@@ -198,8 +198,7 @@ int main(int argc, char *argv[]) {
 void shift_vet(struct inv_t** vet,int n) {
 	for (int i = n; i < __MAX_EQUIP__-1; i++) {
 		vet[i] = vet[i+1];
-	}
-	
+	}	
 }
 
 boolean
