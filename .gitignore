@@ -3,3 +3,6 @@
 *.xml
 *.iml
 *.txt
+Makefile
+main
+main.o
