@@ -5,12 +5,12 @@ int pg_read(FILE *fp, pg_t *pgp){
     return fscanf(fp,"%s%s%s%d%d%d%d%d%d",  pgp->cod,
                                             pgp->nome,
                                             pgp->classe,
-                                            pgp->b_stat.hp,
-                                            pgp->b_stat.mp,
-                                            pgp->b_stat.atk,
-                                            pgp->b_stat.def,
-                                            pgp->b_stat.mag,
-                                            pgp->b_stat.spr);
+                                            &(pgp->b_stat.hp),
+                                            &(pgp->b_stat.mp),
+                                            &(pgp->b_stat.atk),
+                                            &(pgp->b_stat.def),
+                                            &(pgp->b_stat.mag),
+                                            &(pgp->b_stat.spr));
 }
 
 void pg_clean(pg_t *pgp){

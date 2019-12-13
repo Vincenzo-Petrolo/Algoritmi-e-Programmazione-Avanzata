@@ -30,7 +30,6 @@ int main(int argc, char **argv) {
     "Elimina personaggio",
     "Modifica equip"
   };
-
   char codiceRicerca[LEN];
   int selezione;
   FILE *fin;
@@ -39,10 +38,10 @@ int main(int argc, char **argv) {
   pgList_t pgList = pgList_init();
   invArray_t invArray = invArray_init();
   pg_t *pgp, pg;
-
   fin = fopen("pg.txt","r");
   pgList_read(fin, pgList);
   fclose(fin);
+  
 #if DBG
   pgList_print(stdout, pgList);
 #endif /* DBG */

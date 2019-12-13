@@ -41,7 +41,7 @@ inv_t *invArray_getByIndex(invArray_t invArray, int index) {
     if (index < invArray->nInv)
         return &(invArray->vettInv[index]);
     else
-        return INDEX_OVERFLOW;
+        return NULL;
 }
 
 int invArray_searchByName(invArray_t invArray, char *name){

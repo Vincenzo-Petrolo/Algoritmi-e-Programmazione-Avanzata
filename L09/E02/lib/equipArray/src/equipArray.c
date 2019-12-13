@@ -41,7 +41,7 @@ void equipArray_update(equipArray_t equipArray, invArray_t invArray){
         printf("\nInserisci il nome dell'oggetto che vuoi aggiungere: ");
         scanf("%s",obj_name);    
         index = invArray_searchByName(invArray,obj_name);   
-        if (index != -2 && index >= 0) {
+        if (index != INDEX_OVERFLOW && index >= 0) {
             if (equipArray->inUso >= EQUIP_SLOT){
                 equipArray->vettEq[EQUIP_SLOT] = index;                     //sostituisco all'ultimo in caso fosse pieno
             }
