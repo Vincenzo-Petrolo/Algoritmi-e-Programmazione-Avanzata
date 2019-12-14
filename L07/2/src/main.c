@@ -1,4 +1,3 @@
-#include <mylibs/menu.h>
 
 /**Constants*/
 #define __MIN_LUNGHEZZA_COLLANA__	1
@@ -75,6 +74,11 @@ int calcola_valore(collana_t *collana);
 
 boolean verifica_ripetizioni(wrapper_t* db,
 							pietra_t parametro);
+
+void stampa_menu(	const char menu_str[][30],
+					int m);
+
+
 /**Prototypes*/
 
 /**GLOBAL VARIABLES*/
@@ -291,21 +295,17 @@ void disp_ripet(wrapper_t *db) {
 	int curr_val;
 	curr_val = calcola_valore(db->collana);
 	
-	if (curr_val >= (db->max_valore) && db->pos >= (db->max_lunghezza)){
-		
-			if (check(db->sol,db->pos,db->collana)){
-			
-				if (db->collana->vet_presi[ZAFFIRO] <= db->collana->vet_presi[SMERALDO]){
-			
-						db->max_lunghezza 				= db->pos;
-						db->max_valore 					= curr_val;
-			
-						for (int i = 0; i < db->pos; i++){
-							db->best_sol[i] 			= db->sol[i];
-						}
-						collana_display(db->best_sol,db->pos,db->max_valore);
+	if (curr_val >= (db->max_valore) && db->pos >= (db->max_lunghezza)){			
+		if (db->collana->vet_presi[ZAFFIRO] <= db->collana->vet_presi[SMERALDO]){
+	
+				db->max_lunghezza 				= db->pos;
+				db->max_valore 					= curr_val;
+	
+				for (int i = 0; i < db->pos; i++){
+					db->best_sol[i] 			= db->sol[i];
 				}
-			}else return;
+				collana_display(db->best_sol,db->pos,db->max_valore);
+		}else return;
 	}
 
 	for (i = 0; i < __N_TIPI_PIETRE__; i++) {
@@ -356,6 +356,14 @@ verifica_ripetizioni(wrapper_t* db,
 			else
 				return FALSE;
 	}
+}
+
+void
+stampa_menu(const char menu_str[][30],int m){
+    printf("\nMENU");
+    for (int i = 0; i <=m; i++) {
+        printf("\n>%s",menu_str[i]);
+    }
 }
 
 /**Functions*/

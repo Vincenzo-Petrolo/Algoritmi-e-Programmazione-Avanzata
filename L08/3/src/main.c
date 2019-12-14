@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../lib/pg.c"
+#include "../lib/pg.h"
 
 /**Constants*/
 const char  menu[][30]	=  		{	

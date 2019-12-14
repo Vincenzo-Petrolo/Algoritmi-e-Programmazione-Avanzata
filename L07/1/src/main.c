@@ -1,7 +1,9 @@
-#include <mylibs/menu.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**Constants*/
 #define __MIN_LUNGHEZZA_COLLANA__ 1
+#define __N_TIPI_PIETRE__ 4
 /**Constants*/
 
 
@@ -22,6 +24,19 @@
 		int *pietre;
 	}collana_t;
 
+
+	typedef struct{	
+				int pos; 
+				int n;
+				int max_lunghezza;
+				int max_valore;
+				
+				int *val; 
+				int *sol;
+				int *best_sol; 
+				
+				collana_t *collana;}wrapper_t;
+
 	/**Major Data structures*/
 
 
@@ -30,6 +45,7 @@
 
 /**Prototypes*/
 void aggiungi_pietre(char *decisione,collana_t *collana);
+void stampa_menu(const char menu_str[][30],int m);
 void collana_init(collana_t * collana);
 void collana_destroy(collana_t* collana);
 void collana_display(int* pietre,int n);
@@ -51,17 +67,21 @@ int main(int argc, char *argv[]) {
 	collana_t collana_1;
 	int *sol,*val,*best_sol;
 	int somma_pietre=0,max_lunghezza=0;
+
 	/**Variables declaration*/
 	collana_init(&collana_1);
 	stampa_menu(menu,5);
+
 	do {
 		leggi_comando(decisione);
 		aggiungi_pietre(decisione,&collana_1);
 	}while(strcmp(decisione,"calcola") != 0);
+
 	somma_pietre += collana_1.smeraldi;
 	somma_pietre += collana_1.zaffiri;
 	somma_pietre += collana_1.rubini;
 	somma_pietre += collana_1.topazi;
+
 	collana_1.pietre = (int *) malloc(somma_pietre*sizeof(int)); //creo una collana di pietre
 	sol = (int*) malloc(somma_pietre*sizeof(int));
 	val = (int*) malloc(somma_pietre*sizeof(int));
@@ -179,116 +199,65 @@ void collana_display(int* pietre,int n){
 	printf("\nMAX LUNGHEZZA: %d",n);
 }
 
-void powerset_disp_rip(int pos, int *val, int *sol,int *best_sol, int n,int* max_lunghezza,collana_t *collana) {
-  int i;
 
-  if (pos > *max_lunghezza) { //la ricorsione si blocca
-	  if (check(sol,pos))
-			  *max_lunghezza = pos;
-			  for (int i = 0; i < *max_lunghezza; i++)
-			  {
-				  best_sol[i] = sol[i];
-			  }
-  	}
-  if (pos>0) {
-	  switch (sol[pos-1])
-	  {
-	  case ZAFFIRO:{
-		if (collana->zaffiri-1>=0){
-		sol[pos] = ZAFFIRO;
-		collana->zaffiri-=1; //tolgo uno zaffiro dalla pool
-		powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-		collana->zaffiri++; //lo riaggiungio (backtrack)
-		}
 
-		if (collana->rubini-1>=0){
-			sol[pos] = RUBINO;
-			collana->rubini-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->rubini++;
-		}
-	  }
-		  break;
-	  case SMERALDO:{
-		if (collana->smeraldi-1>=0){
-			sol[pos] = SMERALDO;
-			collana->smeraldi-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->smeraldi++;
-		}
-		if (collana->topazi-1>=0){
-			sol[pos] = TOPAZIO;
-			collana->topazi-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->topazi++;
-		}
-	  }
-		  break;
-	  case RUBINO:{
-		if (collana->smeraldi-1>=0){
-			sol[pos] = SMERALDO;
-			collana->smeraldi-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->smeraldi++;
-		}
-		if (collana->topazi-1>=0){
-			sol[pos] = TOPAZIO;
-			collana->topazi-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->topazi++;
-		}
-	  }
-		  break;
-	  case TOPAZIO:{
-		if (collana->zaffiri-1>=0){
-		sol[pos] = ZAFFIRO;
-		collana->zaffiri-=1; //tolgo uno zaffiro dalla pool
-		powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-		collana->zaffiri++; //lo riaggiungio (backtrack)
-		}
+int 
+calcola_valore(collana_t *collana){
+	return (collana->vet_presi[ZAFFIRO]*collana->valori.val_z +
+			collana->vet_presi[RUBINO]*collana->valori.val_r+
+			collana->vet_presi[SMERALDO]*collana->valori.val_s+
+			collana->vet_presi[TOPAZIO]*collana->valori.val_t);
+}
 
-		if (collana->rubini-1>=0){
-			sol[pos] = RUBINO;
-			collana->rubini-=1;
-			powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-			collana->rubini++;
-		}
-	  }
-		  break;
-	  
-	  default:
-		  break;
-	  }
-  }
 
-  else {
-	if (collana->zaffiri-1>=0){
-	sol[pos] = ZAFFIRO;
-	collana->zaffiri-=1; //tolgo uno zaffiro dalla pool
-	powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-	collana->zaffiri++; //lo riaggiungio (backtrack)
-	}
+void disp_ripet(wrapper_t *db) {
+  	int i;
+	int curr_val;
+	curr_val = calcola_valore(db->collana);
 	
-	if (collana->smeraldi-1>=0){
-		sol[pos] = SMERALDO;
-		collana->smeraldi-=1;
-		powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-		collana->smeraldi++;
+	if (db->pos >= (db->max_lunghezza)){				
+		db->max_lunghezza 				= db->pos;
+
+		for (int i = 0; i < db->pos; i++){
+			db->best_sol[i] 			= db->sol[i];
+		}
+		return;
 	}
-	if (collana->rubini-1>=0){
-		sol[pos] = RUBINO;
-		collana->rubini-=1;
-		powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-		collana->rubini++;
+
+	for (i = 0; i < __N_TIPI_PIETRE__; i++) {
+		if ((db->sol[db->pos-1] == ZAFFIRO || db->sol[db->pos-1] == TOPAZIO)
+			 && (i == ZAFFIRO || i == RUBINO)){
+				db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
+				db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
+				db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
+				db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
+				disp_ripet(db);										//chiamata ricorsiva
+				db->pos						-=1;					//risalgo di livello
+				db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
+				db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valore
+			}
+		}
+		else {
+				db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
+				db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
+				db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
+				db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
+				disp_ripet(db);										//chiamata ricorsiva
+				db->pos						-=1;					//risalgo di livello
+				db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
+				db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valore
+		}
 	}
-	
-	if (collana->topazi-1>=0){
-		sol[pos] = TOPAZIO;
-		collana->topazi-=1;
-		powerset_disp_rip(pos+1, val, sol,best_sol, n,max_lunghezza,collana);
-		collana->topazi++;
-	}
-  }
+}
+
+
+
+void
+stampa_menu(const char menu_str[][30],int m){
+    printf("\nMENU");
+    for (int i = 0; i <=m; i++) {
+        printf("\n>%s",menu_str[i]);
+    }
 }
 
 /**Functions*/
