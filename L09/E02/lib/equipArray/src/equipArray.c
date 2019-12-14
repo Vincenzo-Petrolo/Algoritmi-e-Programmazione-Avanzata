@@ -43,9 +43,8 @@ void equipArray_update(equipArray_t equipArray, invArray_t invArray){
         if (index != OBJ_NOT_FOUND) {
             if (equipArray->inUso >= EQUIP_SLOT -1){
                 equipArray->vettEq[EQUIP_SLOT-1] = index;                     //sostituisco all'ultimo in caso fosse pieno
-        }
-    
-        else {
+                
+        }else {
             for (int i = 0; i < EQUIP_SLOT; i++) {
                 if (equipArray->vettEq[i] == -1){
                     equipArray->vettEq[i] = index;

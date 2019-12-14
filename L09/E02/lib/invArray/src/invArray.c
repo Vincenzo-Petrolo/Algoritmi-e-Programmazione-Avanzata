@@ -38,7 +38,7 @@ void invArray_printByIndex(FILE *fp, invArray_t invArray, int index) {
 }
 
 inv_t *invArray_getByIndex(invArray_t invArray, int index) {
-    if (index < invArray->nInv)
+    if (index < invArray->nInv && index != -1)
         return &(invArray->vettInv[index]);
     else
         return NULL;
