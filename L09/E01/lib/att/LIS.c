@@ -5,8 +5,7 @@
 
 
 
-void leggi_att(att_wrapper* att_w,att_wrapper* sol){ 
-	
+void leggi_att(att_wrapper* att_w){ 
 	FILE* fp;
 	
 	if ((fp = fopen(__NOME_FILE__,"r")) == NULL){
@@ -15,8 +14,8 @@ void leggi_att(att_wrapper* att_w,att_wrapper* sol){
 	}
 	
 	fscanf(fp,"%d",&(att_w->n));
+	
 	att_w->att_ptr = (att_t*) malloc( att_w->n * sizeof *(att_w->att_ptr) );
-
 	for (int i = 0; i < att_w->n; i++) {
 		fscanf(fp,"%d%d",&((att_w->att_ptr)[i].inizio),&((att_w->att_ptr)[i].fine));
 	}
@@ -25,7 +24,7 @@ void leggi_att(att_wrapper* att_w,att_wrapper* sol){
 
 
 
-void ordina_att(att_wrapper* att_w) { //algoritmo di ordinamento per ordinarli tutti in base all'inizio
+void ordina_att(att_wrapper* att_w) {
 	int i,j,k;
 	att_t tmp,min;
 	for (i = 0; i < att_w->n; i++) {
@@ -64,21 +63,23 @@ int calcola_diff(att_t att){
 }
 
 void  LIA_calc(att_wrapper* att){
-	int i, j, ris=1, V[att->n], P[att->n], last=1;
-	V[0] = calcola_diff(att->att_ptr[0]); P[0] = -1;
+	int i, j, ris=1, V[att->n], P[att->n], last=1,TMP[att->n];
+	V[0] = calcola_diff(att->att_ptr[0]); P[0] = -1;TMP[0];
 	
-	for (i=1; i< (att->n); i++) {
+	for (i=1; i < (att->n); i++) {
+		TMP[i] = calcola_diff(att->att_ptr[i]); 
 		V[i] = calcola_diff(att->att_ptr[i]); P[i] = -1;
 		for (j=0; j<i; j++)
-			if (check(att->att_ptr[i],att->att_ptr[j]) && (V[i] < V[i] + V[j])) {
-				V[i] += V[j];
+			if (check(att->att_ptr[i],att->att_ptr[j]) && (V[i] < TMP[i] + V[j])) {
+				V[i] =TMP[i] + V[j];
 				P[i] = j;
 			}
-		if (ris < V[i]) {
+		if (ris <= V[i]) {
 			ris = V[i];
 			last = i;
 		}
 	}
+	printf("Lunghezza: %d\nSequenza attività: ",ris);
 	LIA_display(att,P,last);
 }
 
@@ -92,11 +93,11 @@ void LIA_display(att_wrapper* att,int* P,int i) {
 }
 
 void LIA_Calcwr() {
-	att_wrapper* att_w;
-	leggi_att(att_w);
-	ordina_att(att_w);
-	LIA_calc(att_w);
-	att_wr_destroy(att_w);
+	att_wrapper att_w;
+	leggi_att(&att_w);
+	ordina_att(&att_w);
+	LIA_calc(&att_w);
+	att_wr_destroy(&att_w);
 }
 
 void att_wr_destroy(att_wrapper* att_w) {
