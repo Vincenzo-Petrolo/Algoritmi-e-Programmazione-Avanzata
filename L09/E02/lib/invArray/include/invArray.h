@@ -7,7 +7,6 @@
 
 #include "../../inv/include/inv.h"
 #define OBJ_NOT_FOUND -1
-#define INDEX_OVERFLOW -2
 /* ADT di prima classe collezione di oggetti di inventario */
 typedef struct invArray_s *invArray_t;
 

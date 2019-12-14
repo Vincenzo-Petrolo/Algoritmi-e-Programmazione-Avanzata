@@ -25,31 +25,37 @@ int equipArray_inUse(equipArray_t equipArray){
 void equipArray_print(FILE *fp, equipArray_t equipArray, invArray_t invArray){
     for (int i = 0; i < EQUIP_SLOT; i++) {
         if (equipArray->vettEq[i] != -1){
-            printf("\n%1d",i);
             invArray_printByIndex(fp,invArray,equipArray->vettEq[i]);
         }
     }
 }
 
 void equipArray_update(equipArray_t equipArray, invArray_t invArray){
-    char* obj_name;
+    char obj_name[LEN];
     int index,decisione,n;
-    printf("Scrivi \n0) Aggiungere\n1) Rimuovere");
+    printf("Scrivi \n0) Aggiungere\n1) Rimuovere\n");
     scanf("%d",&decisione);
     switch (decisione) {
     case 0:
         printf("\nInserisci il nome dell'oggetto che vuoi aggiungere: ");
-        scanf("%s",obj_name);    
+        scanf("%s",obj_name);
         index = invArray_searchByName(invArray,obj_name);   
-        if (index != INDEX_OVERFLOW && index >= 0) {
-            if (equipArray->inUso >= EQUIP_SLOT){
-                equipArray->vettEq[EQUIP_SLOT] = index;                     //sostituisco all'ultimo in caso fosse pieno
+        if (index != OBJ_NOT_FOUND) {
+            if (equipArray->inUso >= EQUIP_SLOT -1){
+                equipArray->vettEq[EQUIP_SLOT-1] = index;                     //sostituisco all'ultimo in caso fosse pieno
+        }
+    
+        else {
+            for (int i = 0; i < EQUIP_SLOT; i++) {
+                if (equipArray->vettEq[i] == -1){
+                    equipArray->vettEq[i] = index;
+                    return;
+                }
             }
-            else {
-                equipArray->vettEq[++equipArray->inUso] = index;
-            }
+        }
         }   
         break;
+
     case 1:
         printf("\nInserisci il numero dell'oggetto da rimuovere nel tuo inventario");
         scanf("%d",&n);
@@ -61,7 +67,6 @@ void equipArray_update(equipArray_t equipArray, invArray_t invArray){
     default:
         break;
     }
-    
 }
 
 int equipArray_getEquipByIndex(equipArray_t equipArray, int index) {

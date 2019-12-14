@@ -54,7 +54,7 @@ void inv_read(FILE *fp, inv_t *invp){
 }
 
 void inv_print(FILE *fp, inv_t *invp){
-    fprintf(fp,"\n\tNOME:%s\n\tTIPO:%s\n\tHP:%d\n\tMP:%d\n\tATK:%d\n\tDEF:%d\n\tMAG:%d\n\tSPR:%d",  invp->nome,
+    fprintf(fp,"\n\tNOME:%s TIPO:%s HP:%d MP:%d ATK:%d DEF:%d MAG:%d SPR:%d",  invp->nome,
                                                                                                     invp->tipo,
                                                                                                     invp->stat.hp,
                                                                                                     invp->stat.mp,

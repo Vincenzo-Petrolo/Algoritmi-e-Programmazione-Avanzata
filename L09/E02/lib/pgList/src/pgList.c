@@ -69,4 +69,5 @@ pg_t *pgList_searchByCode(pgList_t pgList, char* cod) {
     for(x= pgList->head; x != NULL; x = x->next)
         if (strcmp(cod,x->val.cod) == 0)
             return  &(x->val);
+    return NULL;
 }

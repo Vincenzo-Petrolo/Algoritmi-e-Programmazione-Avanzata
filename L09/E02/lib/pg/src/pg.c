@@ -18,9 +18,11 @@ void pg_clean(pg_t *pgp){
 }
 
 void pg_print(FILE *fp, pg_t *pgp, invArray_t invArray){//da fare!!
-    fprintf(fp,"\nCODICE: %s\nNOME: %s\nCLASSE: %s",    pgp->cod,
+    fprintf(fp,"\nCODICE: %s NOME: %s CLASSE: %s",    pgp->cod,
                                                         pgp->nome,
                                                         pgp->classe);
+    fprintf(fp,"\nEQUIPAGGIAMENTO: ");
+    equipArray_print(fp,pgp->equip,invArray);
 }
 
 void pg_updateEquip(pg_t *pgp, invArray_t invArray){
