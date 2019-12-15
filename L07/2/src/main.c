@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**Constants*/
 #define __MIN_LUNGHEZZA_COLLANA__	1
@@ -8,6 +11,8 @@
 /**Data structures*/
 
 	/**Minor Data structures*/
+	typedef enum{FALSE,TRUE} boolean;
+
 	typedef enum{ZAFFIRO,
 				SMERALDO,
 				RUBINO,
@@ -50,6 +55,9 @@
 /**Data structures*/
 
 /**Prototypes*/
+void stampa_menu(char menu_str[][30],int m);
+void leggi_comando(char *comando);
+
 void aggiungi_pietre(char *decisione,
 					collana_t *collana);
 
@@ -74,11 +82,6 @@ int calcola_valore(collana_t *collana);
 
 boolean verifica_ripetizioni(wrapper_t* db,
 							pietra_t parametro);
-
-void stampa_menu(	const char menu_str[][30],
-					int m);
-
-
 /**Prototypes*/
 
 /**GLOBAL VARIABLES*/
@@ -295,48 +298,67 @@ void disp_ripet(wrapper_t *db) {
 	int curr_val;
 	curr_val = calcola_valore(db->collana);
 	
-	if (curr_val >= (db->max_valore) && db->pos >= (db->max_lunghezza)){			
-		if (db->collana->vet_presi[ZAFFIRO] <= db->collana->vet_presi[SMERALDO]){
-	
-				db->max_lunghezza 				= db->pos;
-				db->max_valore 					= curr_val;
-	
-				for (int i = 0; i < db->pos; i++){
-					db->best_sol[i] 			= db->sol[i];
+	if (curr_val >= (db->max_valore) && db->pos >= (db->max_lunghezza)){
+		
+			if (check(db->sol,db->pos,db->collana)){
+			
+				if (db->collana->vet_presi[ZAFFIRO] <= db->collana->vet_presi[SMERALDO]){
+			
+						db->max_lunghezza 				= db->pos;
+						db->max_valore 					= curr_val;
+			
+						for (int i = 0; i < db->pos; i++){
+							db->best_sol[i] 			= db->sol[i];
+						}
+						collana_display(db->best_sol,db->pos,db->max_valore);
 				}
-				collana_display(db->best_sol,db->pos,db->max_valore);
-		}else return;
+			}else return;
 	}
+	if (db->pos>0){
+		for (i = 0; i < __N_TIPI_PIETRE__; i++) {
+			if ((db->sol[db->pos-1] == ZAFFIRO || db->sol[db->pos-1] == TOPAZIO)
+				&& (i == ZAFFIRO || i == RUBINO)){
 
-	for (i = 0; i < __N_TIPI_PIETRE__; i++) {
-		if ((db->sol[db->pos-1] == ZAFFIRO || db->sol[db->pos-1] == TOPAZIO)
-			 && (i == ZAFFIRO || i == RUBINO)){
-
-			if (verifica_ripetizioni(db,i)){
-				db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
-				db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
-				db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
-				db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
-				disp_ripet(db);										//chiamata ricorsiva
-				db->pos						-=1;					//risalgo di livello
-				db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
-				db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valore
+				if (verifica_ripetizioni(db,i)){
+					db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
+					db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
+					db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
+					db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
+					disp_ripet(db);										//chiamata ricorsiva
+					db->pos						-=1;					//risalgo di livello
+					db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
+					db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valore
+				}
+			}
+			else {
+				if (verifica_ripetizioni(db,i)){
+					db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
+					db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
+					db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
+					db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
+					disp_ripet(db);										//chiamata ricorsiva
+					db->pos						-=1;					//risalgo di livello
+					db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
+					db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valor
+				}
 			}
 		}
-		else {
-			if (verifica_ripetizioni(db,i)){
-				db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
-				db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
-				db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
-				db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
-				disp_ripet(db);										//chiamata ricorsiva
-				db->pos						-=1;					//risalgo di livello
-				db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
-				db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valore
-
-			}
-		}
 	}
+	else {
+			for ( i = 0; i < __N_TIPI_PIETRE__; i++){
+				if (db->collana->vet[i] -1 >= 0){
+					db->sol[db->pos] 			= i;				 	//i corrisponde anche al tipo di pietra, dato dalla enum
+					db->pos						+=1;					//incremento il valore di pos per scendere di livello alla prossima chiamata ricorsiva
+					db->collana->vet_presi[i] 	+=1;					//aggiungo alla posizione i-esima del vettore delle gemme prese una unità in corrispondenza della gemma
+					db->collana->vet[i]			-=1;					//rimuovo dalle pietre che ho a disposizione quella che ho preso
+					disp_ripet(db);										//chiamata ricorsiva
+					db->pos						-=1;					//risalgo di livello
+					db->collana->vet_presi[i]	-=1;					//sposto la gemma corrispondente al valore di i dalla collana
+					db->collana->vet[i]			+=1;					//nel contenitore in corrispondenza del suo valor
+				}
+			}
+			
+		}
 }
 
 		
@@ -352,18 +374,23 @@ verifica_ripetizioni(wrapper_t* db,
 			if (db->collana->counter+1				<= db->collana->max_rip){
 					db->collana->counter			+=1;
 					return TRUE;		
-			}
-			else
-				return FALSE;
+			}else
+        return FALSE;
 	}
+  return FALSE;
 }
 
-void
-stampa_menu(const char menu_str[][30],int m){
+void stampa_menu(char menu_str[][30],int m){
     printf("\nMENU");
-    for (int i = 0; i <=m; i++) {
-        printf("\n>%s",menu_str[i]);
+    for (int i = 0; i < m; i++)
+    {
+        printf("\n>%s",menu_str[i]);   
     }
+}
+
+void leggi_comando(char *comando) {
+    printf("\n> ");
+    scanf("%s",comando);
 }
 
 /**Functions*/
