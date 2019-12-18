@@ -310,7 +310,7 @@ tabPg_destroy(tabPg *tabella_pg) {
 	link x,p;
 	if (tabella_pg->headPg == NULL)
 		return;
-	for (x = tabella_pg->headPg->next,p=tabella_pg->headPg;x != NULL;p=x,x = x->next) {
+	for (x = tabella_pg->headPg->next,p=tabella_pg->headPg;x->next != NULL;p=x,x = x->next) {
 		free(p->personaggio.equip);
 		free(p);
 	}
@@ -376,15 +376,18 @@ newPg (link *head,pg_t val, link next) {
 void
 delPg (int codice_pg,tabPg* tab_pg_ptr) {
 	link x		= tab_pg_ptr->headPg;
-	link p		= NULL;
+	link p		= tab_pg_ptr->headPg;
 
 	if (x == NULL)
 		return;
+
 	printf("\nEliminazione...");
 	for (;x != NULL;p=x,x = x->next) {
+		
 		if (codice_pg == x->personaggio.codice){
+		
 			if (x == tab_pg_ptr->headPg){
-				tab_pg_ptr->headPg->next = x->next;
+				tab_pg_ptr->headPg = x->next;
 			}
 			else {
 				p->next			= x->next;
@@ -393,16 +396,18 @@ delPg (int codice_pg,tabPg* tab_pg_ptr) {
 			tab_pg_ptr->nPg			-= 1;
 			free(x->personaggio.equip);
 			free(x);
-			break;
+			return;
 		}
 	}
+	printf("Codice non trovato!");
 }
+
 
 link
 node_search_cod(link head,int codice_pg) {
 	link x;
 	for (	x = head;
-		x != NULL
+		x->next != NULL
 		&& x->personaggio.codice != codice_pg;
 		x = x->next);
 	return x;
