@@ -1,7 +1,6 @@
 #ifndef __PG_H__
 #define __PG_H__
-#include "inv.c"
-
+#include "inv.h"
 
 	typedef struct{
 		int	        codice;

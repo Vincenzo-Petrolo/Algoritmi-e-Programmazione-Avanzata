@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include "../lib/pg.h"
-
+#include "../lib/inv.h"
+#include <stdio.h>
 /**Constants*/
 const char  menu[][30]	=  		{	
 									"pg_upload",

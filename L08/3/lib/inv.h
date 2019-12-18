@@ -62,7 +62,7 @@
                                         int l,
                                         int r);
 
-    void            stammpa_oggetto(    struct inv_t* oggetto);
+    void            stampa_oggetto(    struct inv_t* oggetto);
     /*Prototypes*/
 
 

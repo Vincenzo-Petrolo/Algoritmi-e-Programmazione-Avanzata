@@ -120,7 +120,7 @@ newPg (link *head,pg_t val, link next) {
 void
 delPg (int codice_pg,tabPg* tab_pg_ptr) {
 	link x		= tab_pg_ptr->headPg;
-	link p		= NULL;
+	link p		= tab_pg_ptr->headPg;
 
 	if (x == NULL)
 		return;
@@ -128,7 +128,7 @@ delPg (int codice_pg,tabPg* tab_pg_ptr) {
 	for (;x != NULL;p=x,x = x->next) {
 		if (codice_pg == x->personaggio.codice){
 			if (x == tab_pg_ptr->headPg){
-				tab_pg_ptr->headPg->next = x->next;
+				tab_pg_ptr->headPg = x->next;
 			}
 			else {
 				p->next			= x->next;
@@ -137,9 +137,10 @@ delPg (int codice_pg,tabPg* tab_pg_ptr) {
 			tab_pg_ptr->nPg			-= 1;
 			free(x->personaggio.equip);
 			free(x);
-			break;
+			return;
 		}
 	}
+	printf("\nPersonaggio non trovato!");
 }
 
 void
