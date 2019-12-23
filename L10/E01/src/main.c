@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
 		if (soluzioni[i] > best_soluzione)
 			best_soluzione = soluzioni[i];
 	}
-	printf("\nLunghezza massima : %d",best_soluzione);
+	printf("\nLunghezza massima : %d",best_soluzione+1);
 	#endif
 
 	matr4d_free(&matrice,quaternioni);
