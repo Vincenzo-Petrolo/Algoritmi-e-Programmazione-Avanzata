@@ -60,10 +60,6 @@ void collana_display(int* pietre,
 
 void disp_ripet(wrapper_t *db);
 
-boolean check(		int *pietre,
-					int n,
-					collana_t *collana);
-
 /**Prototypes*/
 
 /**GLOBAL VARIABLES*/
