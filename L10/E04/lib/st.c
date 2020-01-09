@@ -27,12 +27,11 @@ void STfree(ST st){
     free(st);
 }
 
-int  GetIndex(ST st,Item k){
+int  GetIndex(ST st,Key k){
     int i;
     boolean trovato = FALSE;
     for ( i = 0; i < st->M && !trovato; i++){
-        if (Keycmp(k.id_elaboratore,st->vettore[i].id_elaboratore) == 0){
-            if (Keycmp(k.id_rete,st->vettore[i].id_rete) == 0)
+        if (Keycmp(k,st->vettore[i].id_elaboratore) == 0){
             trovato = TRUE;
         }
     }
@@ -52,12 +51,14 @@ int  STcount(ST st){
 }
 
 void STinsert(ST st, Item val){
-    Keycpy(st->vettore[st->N].id_elaboratore,val.id_elaboratore);
-    Keycpy(st->vettore[st->N].id_rete,val.id_rete);
+    int i;
+    for ( i = 0; i < st->N && Keycmp(val.id_elaboratore,st->vettore[i].id_elaboratore) > 0; i++);
+    Keycpy(st->vettore[i].id_elaboratore,val.id_elaboratore);
+    Keycpy(st->vettore[i].id_rete,val.id_rete);
     st->N++;
 }
 
-int STsearchByKey(ST st, Item k){ //wrapper
+int STsearchByKey(ST st, Key k){ //wrapper
     return GetIndex(st,k);
 }
 
@@ -65,7 +66,7 @@ Item STsearchByIndex(ST st, int index){
     return st->vettore[index];
 }
 
-void STdelete(ST st, Item k){
+void STdelete(ST st, Key k){
     st->vettore[STsearchByKey(st,k)] = ItemsetNull();
     st->N--;
 }
