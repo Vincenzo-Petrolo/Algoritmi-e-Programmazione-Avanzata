@@ -12,7 +12,7 @@ struct grafo{
 
 static int** matr_init(int r,int c,int val){
     int i,j;
-    int **m = (int**) malloc(r*sizeof(int));
+    int **m = (int**) malloc(r*sizeof(int*));
     for ( i = 0; i < r; i++){
         m[i] = (int*) malloc(c*sizeof(int));
     }
@@ -24,16 +24,17 @@ static int** matr_init(int r,int c,int val){
     return m;
 }
 
+
 Grafo madj_2_ladj(Grafo G){
-    link x =  malloc(sizeof(*x));
     int i,j;
     for ( i = 0; i < G->V; i++){
         for ( j = 0; j < G->V; j++){
             if (G->madj[i][j] != 0){
-                G->ladj[i] = new_node(G->ladj[i],STsearchByIndex(G->tab,i),G->madj[i][j]);
+                G->ladj[i] = new_node(G->ladj[i],STsearchByIndex(G->tab,j),G->madj[i][j]);
             }
         }
     }
+    return G;
 }
 
 Grafo grafo_init(int V){
@@ -51,7 +52,7 @@ Grafo grafo_init(int V){
     return G;
 }
 
-void  grafo_free(Grafo G){
+void  grafo_free(Grafo G){  
     for (int i = 0; i < G->V; i++){
         free(G->madj[i]);
     }
@@ -72,7 +73,7 @@ Grafo grafo_load(char* nome_file){
     //Lettura da file con conta dei vertici e inserimento in tabella di simboli non ordinata
     counter = 0;
 
-    while (fscanf(fin,"%s %s %s %s %d",val1.id_elaboratore,val1.id_rete,val2.id_elaboratore,val2.id_rete,peso) != EOF){
+    while (fscanf(fin,"%s %s %s %s %d",val1.id_elaboratore,val1.id_rete,val2.id_elaboratore,val2.id_rete,&peso) != EOF){
         counter++;
     }
 
@@ -83,7 +84,7 @@ Grafo grafo_load(char* nome_file){
 
     counter = 0;
 
-    while (fscanf(fin,"%s %s %s %s %d",val1.id_elaboratore,val1.id_rete,val2.id_elaboratore,val2.id_rete,peso) != EOF){
+    while (fscanf(fin,"%s %s %s %s %d",val1.id_elaboratore,val1.id_rete,val2.id_elaboratore,val2.id_rete,&peso) != EOF){
         if (STsearchByKey(tmp,val1.id_elaboratore) == -1){
             STinsert(tmp,val1);
             counter++;
@@ -104,7 +105,7 @@ Grafo grafo_load(char* nome_file){
         STinsert(G->tab,STsearchByIndex(tmp,i));
     }
 
-
+    STsort(G->tab);
 
     while (fscanf(fin,"%s %s %s %s %d",val1.id_elaboratore,val1.id_rete,val2.id_elaboratore,val2.id_rete,&peso) != EOF){
         id1 = STsearchByKey(G->tab,val1.id_elaboratore);
@@ -124,13 +125,27 @@ int grafo_get_index(Grafo G,Key k) {
     return STsearchByKey(G->tab,k);
 }
 
+void grafo_insert_e(Grafo G,int id1,int id2,int peso){
+    //non orientato => matrice simmetrica
+    G->madj[id1][id2] = peso;
+    G->madj[id2][id1] = peso;
+}
+
+void grafo_remove_e(Grafo G,int id1,int id2){
+    G->madj[id1][id2] = 0;
+    G->madj[id2][id1] = 0;
+}
+
+
+
 void  stampa_grafo(Grafo G,FILE *fout){
     int i,j;
     for ( i = 0; i < G->V; i++){
         fprintf(fout,"\nVertice %d\nNome elaboratore: %s\nRete: %s",i,STsearchByIndex(G->tab,i).id_elaboratore,STsearchByIndex(G->tab,i).id_rete);
         fprintf(fout,"\nArchi con:");
         for ( j = 0; j < G->V; j++){
-            fprintf(fout,"\t\nNome elaboratore: %s\nRete: %s",STsearchByIndex(G->tab,j).id_elaboratore,STsearchByIndex(G->tab,j).id_rete);
+            if (G->madj[i][j] != 0 )
+                fprintf(fout,"\t\nNome elaboratore: %s\nRete: %s",STsearchByIndex(G->tab,j).id_elaboratore,STsearchByIndex(G->tab,j).id_rete);
         }
     }
 }
@@ -139,52 +154,59 @@ boolean sottografo_m(Grafo G,Key elab1,Key elab2,Key elab3){
     int i,j,k=-1;
     int counter = 0;
     int v[3];
+    int sol[3];
     //tabella di simboli che associa ad ogni indice, un indice della tabella di simboli contenuta nel grafo
     v[0] = GetIndex(G->tab,elab1);
     v[1] = GetIndex(G->tab,elab2);
     v[2] = GetIndex(G->tab,elab3);
 
-    for ( i = 0; i < 3 && counter < 2; i++){
-        for ( j = 0; j < 3; j++){
-            if (G->madj[v[i]][v[j]] != 0 && j != k){
-                counter++;
-                k = i;
-                i = j;
-                j = 0;
-            }
-        }
-    }
-    if (counter == 2){
+    counter = comb_sempl(G,0,v,sol,3,2,0,0,0);
+
+    if (counter == 3){
         return TRUE;
     }
     return FALSE;
-}
+}   
 
 boolean sottografo_l(Grafo G,Key elab1,Key elab2,Key elab3){
-    int i,j,k=-1;
+    int j;
     int counter = 0;
     int v[3];
+    int sol[3];
     //tabella di simboli che associa ad ogni indice, l'indice relativo all'id_elaboratore della tabella di simboli contenuta nel grafo
     v[0] = GetIndex(G->tab,elab1);
     v[1] = GetIndex(G->tab,elab2);
     v[2] = GetIndex(G->tab,elab3);
 
-    for (link x = G->ladj[v[i]]; x != NULL && counter < 2 ; x = x->next){
-        for ( j = 0; j < 3; j++){
-            if (v[j] == STsearchByKey(G->tab,elab1)){       //non si crea un loop infinito poichè non ci sono cappi all'interno del grafo
-                x = G->ladj[v[i]];
-                counter++;
-            }else if (v[j] == STsearchByKey(G->tab,elab2)){
-                x = G->ladj[v[i]];
-                counter++;
-            }else if (v[j] == STsearchByKey(G->tab,elab3)){
-                x = G->ladj[v[i]];
-                counter++;
-            }
-        }
-    }
-    
-    if (counter == 2)
+    counter = comb_sempl(G,0,v,sol,3,2,0,0,1);
+
+    if (counter == 3)
         return TRUE;
     return FALSE;
+}
+
+int comb_sempl(Grafo G,int pos,int* val,int* sol,int n,int k,int start,int count,int param){
+
+    
+
+    if (pos >= k){
+        if (param == 0){        //caso per la matrice o per la lista
+            if (G->madj[sol[0]][sol[1]] != 0){
+                return count +1;
+            }
+        }else if (param == 1){
+            for (link x = G->ladj[sol[0]]; x != NULL; x = x->next){
+                if (sol[1] == GetIndex(G->tab,x->dati.id_elaboratore)){
+                    return count+1;
+                }
+            }
+        }       
+    }else{
+
+        for (int i = start; i < n; i++){
+            sol[pos] = val[i];
+            count = comb_sempl(G,pos+1,val,sol,n,k,i+1,count,param);
+        }
+    }
+    return count;
 }

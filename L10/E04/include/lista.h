@@ -1,6 +1,8 @@
 #ifndef __LISTA__H__
 #define __LISTA__H__
 
+#include <stdlib.h>
+
 #include "../include/item.h"
 
 typedef struct node *link;
@@ -12,6 +14,6 @@ struct node{
 };
 
 link new_node(link head,Item dati,int peso);
-void free(link t);
+void free_list(link t);
 
 #endif

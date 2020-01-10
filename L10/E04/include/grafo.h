@@ -9,7 +9,7 @@
 #include "../include/item.h"
 #include "../include/lista.h"
 
-#define MAX_NAME 30
+#define MAX_NAME 31
 
 
 typedef struct arco{
@@ -31,6 +31,7 @@ Grafo   madj_2_ladj(Grafo G);
 void    stampa_grafo(Grafo G,FILE *fout);
 boolean sottografo_m(Grafo G,Key elab1,Key elab2,Key elab3);
 boolean sottografo_l(Grafo G,Key elab1,Key elab2,Key elab3);
+int comb_sempl(Grafo G,int pos,int* val,int* sol,int n,int k,int start,int count,int param);
 
 
 

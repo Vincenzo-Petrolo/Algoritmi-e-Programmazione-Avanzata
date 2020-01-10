@@ -9,6 +9,6 @@ link new_node(link head,Item dati,int peso){
     return t;
 }
 
-void free(link t){
+void free_list(link t){
     free(t);
 }

@@ -2,10 +2,12 @@
 #define __MENU__H__
 
 #include <stdio.h>
+#include <string.h>
+
+#include "../include/mytypes.h"
 
 #define __MAX_S__ 50
 
-typedef enum{FALSE,TRUE} boolean;
 
 typedef enum{	R_MOSTRA,
                 R_SOTTOGRAFO,
@@ -14,9 +16,9 @@ typedef enum{	R_MOSTRA,
 			} comando;
 
 
-void stampa_menu(const char menu_str[][30],int m);
+void stampa_menu(const char **menu_str,int m);
 
-comando leggi_comando(char menu[][30]);
+comando leggi_comando(const char **menu);
 
 
 #endif

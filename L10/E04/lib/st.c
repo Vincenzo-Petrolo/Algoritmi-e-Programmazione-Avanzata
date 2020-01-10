@@ -29,20 +29,14 @@ void STfree(ST st){
 
 int  GetIndex(ST st,Key k){
     int i;
-    boolean trovato = FALSE;
-    for ( i = 0; i < st->M && !trovato; i++){
-        if (Keycmp(k,st->vettore[i].id_elaboratore) == 0){
-            trovato = TRUE;
-        }
-    }
-
-    if (trovato)
-        return i;
-    return -1;    
+    for ( i = 0; i < st->M; i++)
+        if (Keycmp(k,st->vettore[i].id_elaboratore) == 0)
+            return i;
+    return -1;
 }
 
-Key  KeyGet(Item val){
-    return val.id_elaboratore;
+void  KeyGet(Item val,Key k){
+    Keycpy(k,val.id_elaboratore);
 }
 
 
@@ -51,12 +45,23 @@ int  STcount(ST st){
 }
 
 void STinsert(ST st, Item val){
-    int i;
-    for ( i = 0; i < st->N && Keycmp(val.id_elaboratore,st->vettore[i].id_elaboratore) > 0; i++);
-    Keycpy(st->vettore[i].id_elaboratore,val.id_elaboratore);
-    Keycpy(st->vettore[i].id_rete,val.id_rete);
+    Keycpy(st->vettore[st->N].id_elaboratore,val.id_elaboratore);
+    Keycpy(st->vettore[st->N].id_rete,val.id_rete);
     st->N++;
 }
+
+void STsort(ST st){  //insertion sort
+    Item k;
+    int i,j;
+    for ( i = 1; i < st->N; i++){
+        Itemcpy(&k,&(st->vettore[i]));
+        for ( j = i-1; j >= 0 && strcmp(st->vettore[j].id_elaboratore,k.id_elaboratore) > 0; j--){
+            Itemcpy(&(st->vettore[j+1]),&(st->vettore[j]));
+        }
+        Itemcpy(&(st->vettore[j+1]),&k);
+    }
+}
+
 
 int STsearchByKey(ST st, Key k){ //wrapper
     return GetIndex(st,k);

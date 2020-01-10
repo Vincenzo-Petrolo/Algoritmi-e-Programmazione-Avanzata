@@ -1,13 +1,13 @@
 #include "../include/menu.h"
 
-void stampa_menu(const char menu_str[][30],int m){
+void stampa_menu(const char **menu_str,int m){
     printf("\nMENU");
     for (int i = 0; i <=m; i++) {
         printf("\n>%s",menu_str[i]);
     }
 }
 
-comando leggi_comando(char menu[][30]) {
+comando leggi_comando(const char **menu) {
 	comando r_tipo;
 	char 	letto[__MAX_S__];
 	fflush(stdin);
