@@ -74,6 +74,30 @@ void BSTinsert_leafR(BST bst, quotazioni_t x) {
     bst->root = insertR(bst->root, x, bst->z);
 }
 
+static quotazioni_t minR(link h,link z){
+    if (h == z)
+        return quotSetNull();
+    if (h->l == z)
+        return h->quotazione;
+    minR(h->l,z);
+}
+
+data_t BSTminData(BST bst){
+    return minR(bst->root,bst->z).giorno;
+}
+
+static quotazioni_t maxR(link h,link z){
+    if (h == z)
+        return quotSetNull();
+    if (h->r == z)
+        return h->quotazione;
+    maxR(h->r,z);
+}
+
+data_t BSTmaxData(BST bst){
+    return maxR(bst->root,bst->z).giorno;
+}
+
 static void BSTsearchMaxMin(link h,link z,data_t data1,data_t data2,float *max,float *min){ //visita in order
     if (h == z)
         return;

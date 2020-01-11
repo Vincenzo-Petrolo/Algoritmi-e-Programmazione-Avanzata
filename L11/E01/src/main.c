@@ -62,6 +62,11 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 					BSTsearchMaxMinR(getBST(ptr),data,data1,&max,&min);
 					printf("\nQuotazione massima: %f\nQuotazione minima: %f",max,min);
 					break;
+				case R_QUOT_MIN_MAX_alltime:
+					max = __FLT_MIN__;
+					min = __FLT_MAX__;
+					BSTsearchMaxMinR(getBST(ptr),BSTminData(getBST(ptr)),BSTmaxData(getBST(ptr)),&max,&min);
+					printf("\nQuotazione massima: %f\nQuotazione minima: %f",max,min);
 				default:
 					break;
 				}

@@ -11,13 +11,18 @@ typedef struct binarysearchtree *BST;
 
 BST  BSTinit() ;
 void BSTfree(BST bst);
+
 int  BSTcount(BST bst);
 int  BSTempty(BST bst);
+
 quotazioni_t *BSTsearch(BST bst, data_t data);
+
 void BSTinsert_leafR(BST bst, quotazioni_t quotazione);
 void BSTinsert_root(BST bst, quotazioni_t quotazione);
-quotazioni_t BSTmin(BST bst);
-quotazioni_t BSTmax(BST bst);
+
+data_t BSTminData(BST bst);
+data_t BSTmaxData(BST bst);
+
 void BSTvisit(BST bst, int strategy);
 void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min);
 
