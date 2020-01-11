@@ -3,6 +3,7 @@
 
 #include "../include/quotazioni.h"
 
+#include <limits.h>
 #include <stdlib.h>
 
 
@@ -18,6 +19,6 @@ void BSTinsert_root(BST bst, quotazioni_t quotazione);
 quotazioni_t BSTmin(BST bst);
 quotazioni_t BSTmax(BST bst);
 void BSTvisit(BST bst, int strategy);
-
+void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min);
 
 #endif

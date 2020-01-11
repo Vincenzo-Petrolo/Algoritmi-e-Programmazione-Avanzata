@@ -24,8 +24,9 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 	char codice_titolo[200];
 	link head; 
 	link ptr;
-	data_t data;
+	data_t data,data1;
 	quotazioni_t *pointer;
+	float max,min;
 
 	stampa_menu(menu1,2);
 	while ( ( scelta = leggi_comando(menu1)) != R_FINE ){
@@ -46,12 +47,20 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 				scelta = leggi_comando(menu2);
 				switch (scelta){
 				case R_QUOTAZIONE:
-					printf("\nInserisci la data nel formato aaaa/mm/gg :");
+					printf("\nInserisci la data nel formato aaaa/mm/gg:");
 					scanf("%d/%d/%d",&(data.anno),&(data.mese),&(data.giorno));
 					pointer = BSTsearch(getBST(ptr),data);
 					if (pointer != NULL){
 						quot_display(stdout,*pointer);
 					}else printf("\nNon trovato\n");					
+					break;
+				case R_QUOT_MIN_MAX:
+					printf("\nInserisci le due date nel formato aaaa/mm/gg: ");
+					scanf("%d/%d/%d %d/%d/%d",&(data.anno),&(data.mese),&(data1.giorno),&(data1.anno),&(data1.mese),&(data1.giorno));				
+					max = __FLT_MIN__;
+					min = __FLT_MAX__;
+					BSTsearchMaxMinR(getBST(ptr),data,data1,&max,&min);
+					printf("\nQuotazione massima: %f\nQuotazione minima: %f",max,min);
 					break;
 				default:
 					break;

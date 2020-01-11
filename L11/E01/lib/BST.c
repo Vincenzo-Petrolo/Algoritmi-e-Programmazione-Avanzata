@@ -74,3 +74,24 @@ void BSTinsert_leafR(BST bst, quotazioni_t x) {
     bst->root = insertR(bst->root, x, bst->z);
 }
 
+static void BSTsearchMaxMin(link h,link z,data_t data1,data_t data2,float *max,float *min){ //visita in order
+    if (h == z)
+        return;
+    BSTsearchMaxMin(h->l,z,data1,data2,max,min);
+
+    if (dataCmp(data1,h->quotazione.giorno) <= 0 && dataCmp(data2,h->quotazione.giorno) >= 0){
+        if (h->quotazione.quotazione < *min ){
+            *min = h->quotazione.quotazione;
+        }
+        if (h->quotazione.quotazione > *max){
+            *max = h->quotazione.quotazione;
+        }
+    }
+    BSTsearchMaxMin(h->r,z,data1,data2,max,min);
+}
+
+void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min){
+    if (BSTempty(bst))
+        return;
+    BSTsearchMaxMin(bst->root,bst->z,data1,data2,max,min);
+}
