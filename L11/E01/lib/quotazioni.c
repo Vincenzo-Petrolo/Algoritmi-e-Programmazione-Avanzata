@@ -14,3 +14,7 @@ quotazioni_t    quotSetNull(){
     tmp.giorno.giorno = -1;
     return tmp; 
 }
+
+void quot_display(FILE* fout,quotazioni_t quotazione){
+    printf("\nQuotazione: %f",quotazione.quotazione);
+}

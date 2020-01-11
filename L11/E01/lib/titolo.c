@@ -93,3 +93,6 @@ char*   getCodice(Titolo titolo){
     return titolo->codice;
 }
 
+BST     getBinSearchTree(Titolo titolo){
+    return titolo->quotazioni;
+}

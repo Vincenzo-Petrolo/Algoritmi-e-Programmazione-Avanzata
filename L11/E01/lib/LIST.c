@@ -51,3 +51,16 @@ link crea_lista_titoli(FILE *fin){
 
     return head;
 }
+
+link cerca_titolo(link h,char *codice){
+    for (link x = h; x != NULL; x = x->next){
+        if (strcmp(getCodice(x->titolo),codice) == 0){
+            return x;
+        }
+    }
+    return NULL;
+}
+
+BST getBST(link x){
+    return getBinSearchTree(x->titolo);
+}

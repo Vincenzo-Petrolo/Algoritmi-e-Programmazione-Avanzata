@@ -10,5 +10,5 @@ typedef struct quotazioni{
 
 quotazioni_t    quotAdd(quotazioni_t quot,quotazioni_t to_sum);
 quotazioni_t    quotSetNull();
-
+void            quot_display(FILE* fout,quotazioni_t quotazione);
 #endif

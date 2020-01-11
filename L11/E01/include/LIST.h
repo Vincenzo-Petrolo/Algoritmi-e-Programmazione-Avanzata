@@ -12,4 +12,7 @@ link list_free(link x);
 
 link crea_lista_titoli(FILE *fin);
 
+link cerca_titolo(link h,char *codice);
+
+BST getBST(link x);
 #endif

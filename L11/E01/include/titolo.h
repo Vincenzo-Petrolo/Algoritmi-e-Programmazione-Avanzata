@@ -17,4 +17,5 @@ data_t  titGetData(Titolo titolo);
 float   getSommaValoriperQnt(Titolo titolo,data_t giorno);
 int     getSommaQnt(Titolo titolo,data_t giorno);
 char*   getCodice(Titolo titolo);
+BST     getBinSearchTree(Titolo titolo);
 #endif
