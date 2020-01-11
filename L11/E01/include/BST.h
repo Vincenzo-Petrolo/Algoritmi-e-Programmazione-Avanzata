@@ -26,4 +26,10 @@ data_t BSTmaxData(BST bst);
 void BSTvisit(BST bst, int strategy);
 void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min);
 
+void BSTcountSx(BST bst,int *t);
+void BSTcountDx(BST bst,int *t);
+
+void BSTbalance(BST bst,float soglia);
+
+
 #endif

@@ -22,7 +22,7 @@ typedef enum{	R_QUOTAZIONE,
 
 void stampa_menu(const char **menu_str,int m);
 
-int leggi_comando(const char **menu);
+int leggi_comando(const char **menu,int n);
 
 
 #endif

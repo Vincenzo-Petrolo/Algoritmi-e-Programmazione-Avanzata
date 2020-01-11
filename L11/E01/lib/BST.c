@@ -1,20 +1,31 @@
 #include "../include/BST.h"
 
+#define S 0
+
 typedef struct BSTnode* link;
 
-struct BSTnode {quotazioni_t quotazione; link l; link r;} ;
+struct BSTnode {
+    quotazioni_t quotazione; 
+    link    l; 
+    link    r;
+    int     N;
+};
 
-struct binarysearchtree { link root; link z; };
+struct binarysearchtree { 
+    link root; 
+    link z; 
+};
 
-static link NEW( quotazioni_t quotazione, link l, link r) {
+static link NEW( quotazioni_t quotazione, link l, link r,int N) {
     link x = malloc(sizeof *x);
     x->quotazione = quotazione; x->l = l; x->r = r;
+    x->N = N;
     return x;
 }
 
 BST BSTinit( ) {
     BST bst = malloc(sizeof *bst) ;
-    bst->root= ( bst->z = NEW(quotSetNull(), NULL, NULL));
+    bst->root= ( bst->z = NEW(quotSetNull(), NULL, NULL,0));
     return bst;
 }
 
@@ -62,11 +73,12 @@ quotazioni_t* BSTsearch(BST bst, data_t giorno) {
 
 static link insertR(link h, quotazioni_t x, link z) {
     if (h == z)
-        return NEW(x, z, z);
+        return NEW(x, z, z,1);
     if (dataCmp(x.giorno, h->quotazione.giorno) ==-1)
         h->l = insertR(h->l, x, z);
     else
         h->r = insertR(h->r, x, z);
+    (h->N)++;
     return h;
 }
 
@@ -118,4 +130,97 @@ void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min){
     if (BSTempty(bst))
         return;
     BSTsearchMaxMin(bst->root,bst->z,data1,data2,max,min);
+}
+
+static void BSTvisitCountSx(link h,link root,link z,int *t){
+    if (h->quotazione.giorno.giorno == -1)
+        return;
+    
+    (*t)++;
+
+    BSTvisitCountSx(h->l,root,z,t);
+    if (h == root){ //interrompo se sto per ricorrere sull'albero destro
+        return;
+    }
+    BSTvisitCountSx(h->r,root,z,t);
+}
+
+
+static void BSTvisitCountDx(link h,link root,link z,int *t){
+    if (h->quotazione.giorno.giorno == -1)
+        return;
+    
+    (*t)++;
+
+    BSTvisitCountDx(h->r,root,z,t);
+    if (h == root){ //interrompo se sto per ricorrere sull'albero destro
+        return;
+    }
+    BSTvisitCountDx(h->l,root,z,t);
+}
+
+void BSTcountSx(BST bst,int *t){
+    if (BSTempty(bst))
+        return;
+    BSTvisitCountSx(bst->root,bst->root,bst->z,t);
+}
+
+void BSTcountDx(BST bst,int *t){
+    if (BSTempty(bst))
+        return;
+    BSTvisitCountDx(bst->root,bst->root,bst->z,t);
+}
+
+link rotL(link h) {
+    link x = h->r;
+    h->r = x->l;
+    x->l = h;
+    x->N = h->N;
+    h->N = 1;
+    h->N += (h->l) ? h->l->N : 0;
+    h->N += (h->r) ? h->r->N : 0;
+    return x;
+}
+
+link rotR(link h) {
+    link x = h->l;
+    h->l = x->r;
+    x->r = h;
+    x->N = h->N;
+    h->N = 1;
+    h->N += (h->l) ? h->l->N : 0;
+    h->N += (h->r) ? h->r->N : 0;
+    return x;
+}
+
+static link partR(link h, int r) {
+    int t = h->l->N;
+
+    if (t > r) {
+        h->l = partR(h->l, r);
+        h = rotR(h);
+    }
+
+    if (t < r) {
+        h->r = partR(h->r, r-t-1);
+        h = rotL(h);
+    }
+    return h;
+}
+
+static link balanceR(link h, link z) {
+    int r;
+    if (h == z)
+        return z;
+    
+    r = (h->N+1)/2-1;
+    h = partR(h, r);
+    h->l = balanceR(h->l, z);
+    h->r = balanceR(h->r, z);
+    
+    return h;
+}
+void BSTbalance(BST bst,float soglia) {
+    if (soglia >= S)
+        bst->root = balanceR(bst->root, bst->z);
 }

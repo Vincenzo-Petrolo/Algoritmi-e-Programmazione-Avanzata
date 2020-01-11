@@ -7,14 +7,14 @@ void stampa_menu(const char **menu_str,int m){
     }
 }
 
-int	 leggi_comando(const char **menu) {
+int	 leggi_comando(const char **menu,int n) {
 	comando1 r_tipo;
 	char 	letto[__MAX_S__];
 	fflush(stdin);
 	printf("\nInserisci cosa vuoi fare: ");
 	scanf("%s",letto);
 
-	for ( int i = 0; i <= R_FINE; i++){
+	for ( int i = 0; i <= n; i++){
 		if (strcmp(letto,menu[i]) == 0){
 			return i;	//i corrisponde ad un valore della enum dei comandi
 		}

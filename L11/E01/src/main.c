@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
 
 const char *menu1[] = {"upload_file","ricerca_titolo","fine"};
-const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","balance"};
+const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bilancia"};
 
 #define DBG 1
 #if DBG 
@@ -26,10 +26,11 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 	link ptr;
 	data_t data,data1;
 	quotazioni_t *pointer;
-	float max,min;
+	float max,min,soglia;
+	int tDx,tSx;
 
 	stampa_menu(menu1,2);
-	while ( ( scelta = leggi_comando(menu1)) != R_FINE ){
+	while ( ( scelta = leggi_comando(menu1,3)) != R_FINE ){
 		switch (scelta){
 		case R_FILE:
 			printf("\nInserisci il nome del file: ");
@@ -43,8 +44,8 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 			ptr = cerca_titolo(head,codice_titolo);
 			if (ptr != NULL){
 				printf("\nTitolo trovato!\n");
-				stampa_menu(menu2,2);
-				scelta = leggi_comando(menu2);
+				stampa_menu(menu2,3);
+				scelta = leggi_comando(menu2,4);
 				switch (scelta){
 				case R_QUOTAZIONE:
 					printf("\nInserisci la data nel formato aaaa/mm/gg:");
@@ -67,7 +68,17 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bal
 					min = __FLT_MAX__;
 					BSTsearchMaxMinR(getBST(ptr),BSTminData(getBST(ptr)),BSTmaxData(getBST(ptr)),&max,&min);
 					printf("\nQuotazione massima: %f\nQuotazione minima: %f",max,min);
+				case R_BILANCIO:
+					tDx=0;tSx=0;
+					BSTcountDx(getBST(ptr),&tDx);
+					BSTcountSx(getBST(ptr),&tSx);
+					if (tDx > tSx){
+						soglia = tDx/tSx;
+					}else soglia = tSx/tDx;
+					BSTbalance(getBST(ptr),soglia);
+					break;
 				default:
+					printf("\nComando errato!\n");
 					break;
 				}
 			}
