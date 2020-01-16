@@ -55,13 +55,15 @@ Titolo  titCarica(Titolo titolo,FILE* fin){
     //inserisco la nuova quotazione se non la trovo, altrimenti ne aggiungo il valore a quella già esistente
     for ( i = 0; i < titolo->n_transazioni; i++){
         ptr = BSTsearch(titolo->quotazioni,getData(titolo->transazioni[i]));
-        if ( ptr == NULL ){    //-1 indica che la quot non esiste
-            tmp.giorno = getData(titolo->transazioni[i]);
+        if ( ptr == NULL ){
+            tmp.giorno      = getData(titolo->transazioni[i]);
             tmp.quotazione  = getSommaValoriperQnt(titolo,tmp.giorno)/getSommaQnt(titolo,tmp.giorno);
             BSTinsert_leafR(titolo->quotazioni,tmp);
         }else {
-          *ptr = quotAdd(*ptr,tmp);
-        }    
+          tmp.giorno        = getData(titolo->transazioni[i]);
+          tmp.quotazione    = getSommaValoriperQnt(titolo,tmp.giorno)/getSommaQnt(titolo,tmp.giorno);
+          ptr->quotazione   = tmp.quotazione;
+        }
     }
     return titolo;
 }

@@ -13,7 +13,7 @@ struct BSTnode {
 
 struct binarysearchtree { 
     link root; 
-    link z; 
+    link z;
 };
 
 static link NEW( quotazioni_t quotazione, link l, link r,int N) {
