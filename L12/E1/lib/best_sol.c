@@ -1,5 +1,4 @@
 #include "../include/best_sol.h"
-
 #include <stdlib.h>
 #include <limits.h>
 
@@ -16,7 +15,7 @@ Sol SOLinit(int V){
     Sol tmp;
     tmp.card_min        = INT_MAX;
     tmp.n_sol           = 0;
-    tmp.set_best_sol    = MATRIXint(400000,V-1,0);
+    tmp.set_best_sol    = MATRIXint(2*coeffBinomiale(V,2),V-1,0);
     tmp.sol.peso        = -1;
     tmp.sol.sol         = (Edge*) malloc((V-1)* sizeof(*(tmp.sol.sol)));
     return tmp;

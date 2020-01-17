@@ -75,7 +75,7 @@ Graph GRAPHinit(int V) {
   G->V = V;
   G->E = 0;
   G->madj = MATRIXint(V, V, 0);
-  G->archi = malloc((V-1)*sizeof(Edge));
+  G->archi = malloc(2*coeffBinomiale(V,2)*sizeof(Edge));  //in un grafo diretto ci possono essere massimo 2 volte gli archi di un grafo completo(semplice ovvero non orientato)
   if (G->madj == NULL)
     return NULL;
   G->tab = STinit(V);
@@ -348,4 +348,8 @@ void GRAPHspBF(Graph G, int id){
 			printf("%s: %d\n", STsearchByIndex (G->tab, v), d[v]);
 	}
 	else printf("\n Negative cycle found!\n");
+}
+
+int     GRAPHgetVn(     Graph G){
+  return G->V;
 }

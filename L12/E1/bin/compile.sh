@@ -4,6 +4,7 @@ gcc -c -g ../lib/DAG.c
 gcc -c -g ../lib/Graph.c
 gcc -c -g ../lib/Queue.c
 gcc -c -g ../lib/ST.c
+gcc -c -g ../lib/math.c
 gcc -c -g ../src/main.c
 
-gcc best_sol.o DAG.o Graph.o Queue.o ST.o main.o -o main
+gcc best_sol.o DAG.o Graph.o Queue.o ST.o main.o  math.o -o main

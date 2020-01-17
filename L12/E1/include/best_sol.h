@@ -3,6 +3,7 @@
 
 #include "../include/Graph.h"
 #include "../include/mytypes.h"
+#include "../include/math.h"
 
 
 typedef struct min_w_sol{

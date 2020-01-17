@@ -2,6 +2,8 @@
 #define GRAPH_H
 #include <stdio.h>
 #include "../include/mytypes.h"
+#include "../include/math.h"
+
 
 typedef struct edge {   
     int v; 
@@ -52,5 +54,7 @@ int     GRAPHgetnEdges( Graph G);
 
 void    GRAPHspBF(      Graph G, 
                         int id);
+
+int     GRAPHgetVn(     Graph G);
 
 #endif

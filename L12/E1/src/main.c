@@ -3,7 +3,7 @@
 #include "../include/Graph.h"
 #include "../include/best_sol.h"
 
-#define FILE_NAME "grafo2.txt"
+#define FILE_NAME "grafo4.txt"
 
 int main(int argc, char *argv[]) {
 	FILE *fp = fopen(FILE_NAME,"r");
@@ -26,10 +26,9 @@ int main(int argc, char *argv[]) {
 	}
 	GRAPHstore(G,stdout);
 	
-	for (int i = 0; i < GRAPHgetnEdges(G); i++){
+	for (int i = 0; i < GRAPHgetVn(G); i++){
 		GRAPHspBF(G,i);
 	}
-	
-
+	GRAPHfree(G);
 	return(0);
 }
