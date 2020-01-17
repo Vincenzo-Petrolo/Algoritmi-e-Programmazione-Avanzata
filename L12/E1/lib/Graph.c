@@ -1,10 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
+
 #include "../include/ST.h"
 #include "../include/Queue.h"
 #include "../include/Graph.h"
 
-#define MAXC 11
+#define MAXC 2
+const int maxWT = INT_MIN;
 
 struct graph {
   int V; 
@@ -112,6 +115,7 @@ Graph GRAPHload(FILE *fin) {
     G->archi[i].v = id1;G->archi[i].w = id2;G->archi[i].wt = wt;
     if (id1 >= 0 && id2 >=0)
       GRAPHinsertE(G, id1, id2, wt);
+    i++;
   }
   G->n_archi = i;
   
@@ -298,4 +302,50 @@ Edge*   GRAPHgetEdges(  Graph G){
 
 int     GRAPHgetnEdges( Graph G){
   return G->n_archi;
+}
+
+void GRAPHspBF(Graph G, int id){
+	int v, w, negcycfound;
+	int *st, *d;
+	st = malloc(G->V*sizeof(int));
+	d = malloc(G->V*sizeof(int));
+
+	for (v = 0; v < G->V; v++) {
+		st[v]= -1;
+		d[v] = maxWT;
+	}
+
+	d[id] = 0;
+	st[id] = id;
+
+	for (w=0; w<G->V-1; w++)
+		for (v=0; v<G->V; v++)
+			if (d[v] >= maxWT)
+				for (int i = 0; i < G->V; i++){
+					if (G->madj[v][i] != 0){
+						if (d[i] < d[v] + G->madj[v][i]){
+							d[i] 	= d[v] + G->madj[v][i];
+							st[i]	= v;
+						}
+					}
+				}
+
+	negcycfound = 0;
+	for (v=0; v<G->V; v++)
+		if (d[v] >= maxWT)
+			for (int i = 0; i < G->V-1; i++){
+				if (G->madj[v][i] != 0){
+					if (d[i] < d[v] + G->madj[v][i]){
+						negcycfound = 1;
+					}
+				}
+			}
+
+	if (negcycfound == 0) {
+		printf("\n Maximum distance\n");
+		printf("\n Max.dist. from %s\n",STsearchByIndex (G->tab, id));
+		for (v = 0; v < G->V; v++)
+			printf("%s: %d\n", STsearchByIndex (G->tab, v), d[v]);
+	}
+	else printf("\n Negative cycle found!\n");
 }

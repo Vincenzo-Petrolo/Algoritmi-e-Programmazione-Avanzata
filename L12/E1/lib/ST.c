@@ -4,7 +4,7 @@
 #include "../include/ST.h"
 
 struct symboltable {
-  	char **a; 
+  char **a; 
 	int maxN; 
 	int N;
 };

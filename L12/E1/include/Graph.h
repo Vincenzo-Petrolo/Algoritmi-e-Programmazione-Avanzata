@@ -49,4 +49,8 @@ boolean DAGVerify(      Graph G,
 Edge*   GRAPHgetEdges(  Graph G);
 
 int     GRAPHgetnEdges( Graph G);
+
+void    GRAPHspBF(      Graph G, 
+                        int id);
+
 #endif

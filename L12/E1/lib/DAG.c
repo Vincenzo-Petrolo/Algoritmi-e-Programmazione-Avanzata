@@ -6,7 +6,7 @@
 #define MAXC 10
 
 struct dag {
-  	int V; 
+  int V; 
 	int E; 
 	int **madj; 
 	ST tab; 
