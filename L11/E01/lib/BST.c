@@ -132,43 +132,23 @@ void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min){
     BSTsearchMaxMin(bst->root,bst->z,data1,data2,max,min);
 }
 
-static void BSTvisitCountSx(link h,link root,link z,int *t){
-    if (h->quotazione.giorno.giorno == -1)
-        return;
-    
-    (*t)++;
-
-    BSTvisitCountSx(h->l,root,z,t);
-    if (h == root){ //interrompo se sto per ricorrere sull'albero destro
-        return;
-    }
-    BSTvisitCountSx(h->r,root,z,t);
-}
-
-
-static void BSTvisitCountDx(link h,link root,link z,int *t){
-    if (h->quotazione.giorno.giorno == -1)
-        return;
-    
-    (*t)++;
-
-    BSTvisitCountDx(h->r,root,z,t);
-    if (h == root){ //interrompo se sto per ricorrere sull'albero destro
+static void BSTvisit(link h,link z,int count,int* min,int* max){
+    if (h == z){
+        if (count < *min){
+            *min = count;
+        }
+        if (count > *max){
+            *max = count;
+        }
         return;
     }
-    BSTvisitCountDx(h->l,root,z,t);
+    
+    BSTvisit(h->l,z,count+1,min,max);
+    BSTvisit(h->l,z,count+1,min,max);
 }
 
-void BSTcountSx(BST bst,int *t){
-    if (BSTempty(bst))
-        return;
-    BSTvisitCountSx(bst->root,bst->root,bst->z,t);
-}
-
-void BSTcountDx(BST bst,int *t){
-    if (BSTempty(bst))
-        return;
-    BSTvisitCountDx(bst->root,bst->root,bst->z,t);
+void BSTminmax(BST bst,int *min,int *max){
+    BSTvisit(bst->root,NULL,0,min,max);
 }
 
 link rotL(link h) {

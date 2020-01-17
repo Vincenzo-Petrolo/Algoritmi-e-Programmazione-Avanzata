@@ -27,7 +27,7 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bil
 	data_t data,data1;
 	quotazioni_t *pointer;
 	float max,min,soglia;
-	int tDx,tSx;
+	int t_min,t_max;
 
 	stampa_menu(menu1,2);
 	while ( ( scelta = leggi_comando(menu1,3)) != R_FINE ){
@@ -68,13 +68,11 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bil
 					min = __FLT_MAX__;
 					BSTsearchMaxMinR(getBST(ptr),BSTminData(getBST(ptr)),BSTmaxData(getBST(ptr)),&max,&min);
 					printf("\nQuotazione massima: %f\nQuotazione minima: %f",max,min);
+					break;
 				case R_BILANCIO:
-					tDx=0;tSx=0;
-					BSTcountDx(getBST(ptr),&tDx);
-					BSTcountSx(getBST(ptr),&tSx);
-					if (tDx > tSx){
-						soglia = tDx/tSx;
-					}else soglia = tSx/tDx;
+					t_min=INT_MAX;t_max=INT_MIN;	
+					BSTminmax(getBST(ptr),&t_min,&t_max);
+					soglia = t_max/t_min;
 					BSTbalance(getBST(ptr),soglia);
 					break;
 				default:
@@ -86,6 +84,7 @@ const char *menu2[] = {"ricerca_quot","ricerca_time_int","ricerca_all_time","bil
 		default:
 			break;
 		}
+		stampa_menu(menu1,2);
 	}
 	
 

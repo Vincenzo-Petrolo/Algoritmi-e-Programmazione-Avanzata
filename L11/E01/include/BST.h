@@ -23,11 +23,10 @@ void BSTinsert_root(BST bst, quotazioni_t quotazione);
 data_t BSTminData(BST bst);
 data_t BSTmaxData(BST bst);
 
-void BSTvisit(BST bst, int strategy);
 void BSTsearchMaxMinR(BST bst,data_t data1,data_t data2,float *max,float *min);
 
-void BSTcountSx(BST bst,int *t);
-void BSTcountDx(BST bst,int *t);
+
+void BSTminmax(BST bst,int *min,int *max);
 
 void BSTbalance(BST bst,float soglia);
 
