@@ -2,30 +2,16 @@
 #include <stdlib.h>
 #include <limits.h>
 
-static Edge **MATRIXint(int r, int c, int val) {
-  int i, j;
-  Edge **t = malloc(r * sizeof(Edge *));
-  for (i=0; i < r; i++) {
-    t[i] = malloc(c * sizeof(Edge));
-  }
-  return t;
-}
-
 Sol SOLinit(int V){
     Sol tmp;
     tmp.card_min        = INT_MAX;
     tmp.n_sol           = 0;
-    tmp.set_best_sol    = MATRIXint(2*coeffBinomiale(V,2),V-1,0);
     tmp.sol.peso        = -1;
     tmp.sol.sol         = (Edge*) malloc((V-1)* sizeof(*(tmp.sol.sol)));
     return tmp;
 }
 
-void SQLfree(Sol sol,int V){
-    for (int i = 0; i < V-1; i++){
-        free(sol.set_best_sol[i]);
-    }
-    free(sol.set_best_sol);
+void SOLfree(Sol sol){
     free(sol.sol.sol);
 }
 
@@ -42,10 +28,15 @@ static void max_DAG_gen(Graph G,Edge* archi,Edge* archi_prova,int n_archi,Sol *s
     if (DAGVerify(G,0) == TRUE && card <= sol->card_min){
         sol->card_min   = pos;          //attuale lunghezza del vettore   
         int peso = 0;
-        for (int i = 0; i < card; i++){  //salvo l'insieme a card minima
-            sol->set_best_sol[sol->n_sol][i] = archi_prova[i];
+
+        printf("\n{ ");
+        for (int i = 0; i < sol->card_min; i++){
+            printf("(%d,%d) ",  archi_prova[i].v,
+                                archi_prova[i].w);
             peso += archi_prova[i].wt;
         }
+        printf("}\n");
+        
         sol->n_sol++;                   //incremento il numero di sottoinsiemi che ho trovato
         if (peso > sol->sol.peso){      //per la seconda richiesta calcolo anche quale di queste trovate è la soluzione a peso minimo
             sol->sol.peso = peso;

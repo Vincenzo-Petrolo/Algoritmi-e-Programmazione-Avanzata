@@ -12,7 +12,6 @@ typedef struct min_w_sol{
 }Sol_minw;
 
 typedef struct sol{
-    Edge        **set_best_sol;
     int         card_min;
     int         n_sol;
     Sol_minw    sol;
@@ -20,8 +19,7 @@ typedef struct sol{
 
 Sol     SOLinit(    int V);
 
-void    SQLfree(    Sol sol,
-                    int V);
+void    SOLfree(    Sol sol);
 
 Sol     max_DAG (   Graph G,
                     Edge *archi,

@@ -342,9 +342,12 @@ void GRAPHspBF(Graph G, int id){
 			}
 
 	if (negcycfound == 0) {
-		printf("\n Maximum distance\n");
-		printf("\n Max.dist. from %s\n",STsearchByIndex (G->tab, id));
+		printf("\n*******Distanza Massima*******\n");
+		printf("\n Max.dist. da %s\n",STsearchByIndex (G->tab, id));
 		for (v = 0; v < G->V; v++)
+    if (d[v] < 0)
+			printf("%s: Infinito\n", STsearchByIndex (G->tab, v));
+    else
 			printf("%s: %d\n", STsearchByIndex (G->tab, v), d[v]);
 	}
 	else printf("\n Negative cycle found!\n");
