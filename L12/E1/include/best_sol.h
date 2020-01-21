@@ -6,15 +6,15 @@
 #include "../include/math.h"
 
 
-typedef struct min_w_sol{
+typedef struct max_w_sol{
     Edge*   sol;
     int     peso;
-}Sol_minw;
+}Sol_maxw;
 
 typedef struct sol{
     int         card_min;
     int         n_sol;
-    Sol_minw    sol;
+    Sol_maxw    sol;
 }Sol;
 
 Sol     SOLinit(    int V);

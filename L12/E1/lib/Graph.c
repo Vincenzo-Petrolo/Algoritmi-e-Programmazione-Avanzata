@@ -14,7 +14,6 @@ struct graph {
   int E; 
   int **madj; 
   Edge *archi;
-  int n_archi;
 	ST tab; 
 };
 
@@ -117,7 +116,7 @@ Graph GRAPHload(FILE *fin) {
       GRAPHinsertE(G, id1, id2, wt);
     i++;
   }
-  G->n_archi = i;
+  G->E = i;
   
   return G;
 }
@@ -301,7 +300,7 @@ Edge*   GRAPHgetEdges(  Graph G){
 }
 
 int     GRAPHgetnEdges( Graph G){
-  return G->n_archi;
+  return G->E;
 }
 
 void GRAPHspBF(Graph G, int id){
