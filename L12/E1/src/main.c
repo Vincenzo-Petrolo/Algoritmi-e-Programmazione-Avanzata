@@ -3,10 +3,9 @@
 #include "../include/Graph.h"
 #include "../include/best_sol.h"
 
-#define FILE_NAME "grafo4.txt"
 
 int main(int argc, char *argv[]) {
-	FILE *fp = fopen(FILE_NAME,"r");
+	FILE *fp = fopen(argv[1],"r");
 	Graph G = GRAPHload(fp);
 
 	Sol soluzione = max_DAG(G,GRAPHgetEdges(G),GRAPHgetnEdges(G));

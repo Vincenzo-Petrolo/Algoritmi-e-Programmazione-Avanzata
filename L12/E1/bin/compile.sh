@@ -1,6 +1,5 @@
 #! /bin/bash
 gcc -c -g ../lib/best_sol.c
-gcc -c -g ../lib/DAG.c
 gcc -c -g ../lib/Graph.c
 gcc -c -g ../lib/Queue.c
 gcc -c -g ../lib/ST.c
