@@ -15,24 +15,49 @@ struct graph {
 	ST tab; 
 };
 
-static void comb_semplici(Graph G,int m,int *sol,int *best_sol,int start,int pos,int *trovato,int k);
+static void comb_semplici(  Graph G,
+                            int m,
+                            int *sol,
+                            int *best_sol,
+                            int start,
+                            int pos,
+                            int *trovato,
+                            int k);
 
-static void powset_combsemplici(Graph G,int m,int start,int pos,int *trovato,int *sol,int *best_sol);
+static void powset_combsemplici(  Graph G,
+                                  int m,
+                                  int start,
+                                  int pos,
+                                  int *trovato,
+                                  int *sol,
+                                  int *best_sol);
 
 
-static       Edge EDGEcreate(	int v, 
-								int w, 
-								int wt);
+static Edge EDGEcreate(	int v, 
+                        int w, 
+                        int wt);
 
 static int **MATRIXint(			int r, 
-								int c, 
-								int val);
+                            int c, 
+                            int val);
 
 static void  insertE(			Graph G,
-								Edge e);
+                          Edge e);
 
 static void  removeE(			Graph G, 
-								Edge e);
+                          Edge e);
+
+
+unsigned long int factorialR(int n){
+  if (n == 0)
+      return 1;
+  return factorialR(n-1) * n;
+}
+
+unsigned long int coeffBinomiale(int n,int k){
+  return(factorialR(n)/(factorialR(k)*factorialR(n-k))) +0.5;
+}
+
 
 static Edge EDGEcreate(int v, int w, int wt) {
   Edge e;
@@ -91,10 +116,10 @@ Graph GRAPHload(FILE *fin) {
 
   for (int i=0; i<n; i++) {
     fscanf(fin, "%s", label);
-    STinsert(G->tab, label, i); //errore di distrazione
+    STinsert(G->tab, label, i);
   }
 
-  while(fscanf(fin, "%s %s", label, label2) != EOF) { //erroe di distrazione, pensavo che fossero due interi
+  while(fscanf(fin, "%s %s", label, label2) != EOF) { 
     GRAPHinsertE(G,STsearch(G->tab,label) , STsearch(G->tab,label2), 1);
     G->edges[counter] = EDGEcreate(STsearch(G->tab,label),STsearch(G->tab,label2),1);
     counter++;
@@ -179,13 +204,9 @@ void j_edge_connected(Graph G,int j){
 }
 
 static void powset_combsemplici(Graph G,int m,int start,int pos,int *trovato,int *sol,int *best_sol){
-  /*Nel compito a causa dell'errore sul for alla riga n dove ho sostituito per sbaglio il limite dell'indice G->E con m
-  ha causato la modifica dei vari if nei for poichè anzichè testare che sia uguale a 1 deve testare che sia uguale a -1
-  quindi di conseguenza cambiano anche i parametri passati alla funzione da i a sol[i[*/
   int i;
 
   if (*trovato != 1){
-
     if (pos >= m){
       for ( i = 0; i < m; i++){
         if (sol[i] != -1){
@@ -245,14 +266,11 @@ void k_core(Graph G,int k){
 }
 
 static void comb_semplici(Graph G,int m,int *sol,int *best_sol,int start,int pos,int *trovato,int k){
-  /*nel vettore dimensionato a massimo il numero dei vertici metto i vertici che voglio eliminare
-  dopodichè li rimuovo dal grafo, controllo il grado, e successivamente li inserisco di nuovo*/
-  
   int i;
   if (*trovato != 1){ 
     if (pos >= m){
       for ( i = 0; i < m; i++){
-        if (sol[i] != -1){  //errore 1 anzichè -1
+        if (sol[i] != -1){
           GRAPH_removeV(G,sol[i]);
         }
       }
@@ -265,7 +283,7 @@ static void comb_semplici(Graph G,int m,int *sol,int *best_sol,int start,int pos
       }
 
       for ( i = 0; i < m; i++){
-        if (sol[i] != -1){  //errore == 1 anzichè != -1
+        if (sol[i] != -1){
           GRAPH_insertV(G,sol[i]);
         }
       }

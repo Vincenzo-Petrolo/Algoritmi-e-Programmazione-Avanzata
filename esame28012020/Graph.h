@@ -1,9 +1,6 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 #include <stdio.h>
-#include "mytypes.h"
-#include "math.h"
-
 
 typedef struct edge {   
     int v; 
